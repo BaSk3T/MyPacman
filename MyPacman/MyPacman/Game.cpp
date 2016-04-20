@@ -11,17 +11,32 @@ void loadTileClips(SDL_Rect tilesClips[]);
 
 short const WINDOW_HEIGHT = 640;
 short const WINDOW_WIDTH = 860;
-short const NUMBER_OF_TILE_TYPES = 1;
-short const NUMBER_OF_TILES = 100;
-short const TILE_WIDTH = 32;
-short const TILE_HEIGHT = 32;
-short const MAP_WIDTH = 320;
+short const NUMBER_OF_TILE_TYPES = 14;
+short const NUMBER_OF_TILES = 418;
+short const TILE_WIDTH = 24;
+short const TILE_HEIGHT = 24;
+short const MAP_WIDTH = 456;
+short const MAP_INIT_X_POSITION = (WINDOW_WIDTH - MAP_WIDTH) / 2;
+short const MAP_INIT_Y_POSITION = (WINDOW_HEIGHT - TILE_HEIGHT * 22) / 2;
 
 SDL_Rect tilesClips[NUMBER_OF_TILE_TYPES];
 
 enum TileType
 {
-	BLACK_BOX = 0
+	LEFT_TILE = 0,
+	UP_TILE = 1,
+	RIGHT_TILE = 2,
+	DOWN_TILE = 3,   
+	VERTICAL_PIPE_TILE = 4,
+	HORIZONTAL_PIPE_TILE = 5,
+	TOP_TILE = 6,
+	BOT_TILE = 7,
+	TOP_LEFT_TILE = 8,
+	TOP_RIGHT_TILE = 9,
+	BOT_LEFT_TILE = 10,
+	BOT_RIGHT_TILE = 11,
+	RIGHT_BORDER_TILE = 12,
+	LEFT_BORDER_TILE = 13
 };
 
 int main(int argc, char ** argv)
@@ -33,13 +48,13 @@ int main(int argc, char ** argv)
 	int delay = 1000 / 60;
 	bool hasQuit = false;
 
-	GameTexture *tilesTexture = new GameTexture();
-	tilesTexture->loadFromFile("tiles.png", renderer);
-
 	GameTileTexture *tiles[NUMBER_OF_TILES];
 
 	int numberOfLoadedTiles = loadTiles("level.map", tiles, NUMBER_OF_TILES);
 	loadTileClips(tilesClips);
+
+	GameTexture *tilesTexture = new GameTexture();
+	tilesTexture->loadFromFile("tiles.png", renderer);
 
 	while (!hasQuit) {
 		while (SDL_PollEvent(&ev) != 0) {
@@ -50,7 +65,7 @@ int main(int argc, char ** argv)
 
 		SDL_Delay(delay);
 
-		SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
 		SDL_RenderClear(renderer);
 
 		for (int i = 0; i < numberOfLoadedTiles; i++) {
@@ -111,8 +126,8 @@ SDL_Renderer *initRenderer(SDL_Window *window)
 
 int loadTiles(char *mapPath, GameTileTexture *tiles[], int numberOfTiles)
 {
-	int x = 0;
-	int y = 0;
+	int x = MAP_INIT_X_POSITION;
+	int y = MAP_INIT_Y_POSITION;
 
 	int indexOfTile = 0;
 
@@ -141,8 +156,8 @@ int loadTiles(char *mapPath, GameTileTexture *tiles[], int numberOfTiles)
 
 			x += TILE_WIDTH;
 
-			if (x >= MAP_WIDTH) {
-				x = 0;
+			if (x >= MAP_WIDTH + MAP_INIT_X_POSITION) {
+				x = MAP_INIT_X_POSITION;
 
 				y += TILE_HEIGHT;
 			}
@@ -156,8 +171,73 @@ int loadTiles(char *mapPath, GameTileTexture *tiles[], int numberOfTiles)
 
 void loadTileClips(SDL_Rect tilesClips[])
 {
-	tilesClips[BLACK_BOX].x = 0;
-	tilesClips[BLACK_BOX].y = 0;
-	tilesClips[BLACK_BOX].w = TILE_WIDTH;
-	tilesClips[BLACK_BOX].h = TILE_HEIGHT;
+	tilesClips[LEFT_TILE].x = 0;
+	tilesClips[LEFT_TILE].y = 0;
+	tilesClips[LEFT_TILE].w = TILE_WIDTH;
+	tilesClips[LEFT_TILE].h = TILE_HEIGHT;
+
+	tilesClips[UP_TILE].x = 24;
+	tilesClips[UP_TILE].y = 0;
+	tilesClips[UP_TILE].w = TILE_WIDTH;
+	tilesClips[UP_TILE].h = TILE_HEIGHT;
+
+	tilesClips[RIGHT_TILE].x = 48;
+	tilesClips[RIGHT_TILE].y = 0;
+	tilesClips[RIGHT_TILE].w = TILE_WIDTH;
+	tilesClips[RIGHT_TILE].h = TILE_HEIGHT;
+
+	tilesClips[DOWN_TILE].x = 72;
+	tilesClips[DOWN_TILE].y = 0;
+	tilesClips[DOWN_TILE].w = TILE_WIDTH;
+	tilesClips[DOWN_TILE].h = TILE_HEIGHT;
+
+	tilesClips[VERTICAL_PIPE_TILE].x = 96;
+	tilesClips[VERTICAL_PIPE_TILE].y = 0;
+	tilesClips[VERTICAL_PIPE_TILE].w = TILE_WIDTH;
+	tilesClips[VERTICAL_PIPE_TILE].h = TILE_HEIGHT;
+
+	tilesClips[HORIZONTAL_PIPE_TILE].x = 120;
+	tilesClips[HORIZONTAL_PIPE_TILE].y = 0;
+	tilesClips[HORIZONTAL_PIPE_TILE].w = TILE_WIDTH;
+	tilesClips[HORIZONTAL_PIPE_TILE].h = TILE_HEIGHT;
+
+	tilesClips[TOP_TILE].x = 120;
+	tilesClips[TOP_TILE].y = 0;
+	tilesClips[TOP_TILE].w = TILE_WIDTH;
+	tilesClips[TOP_TILE].h = TILE_HEIGHT - 2;
+
+	tilesClips[BOT_TILE].x = 96;
+	tilesClips[BOT_TILE].y = 24;
+	tilesClips[BOT_TILE].w = TILE_WIDTH;
+	tilesClips[BOT_TILE].h = TILE_HEIGHT;
+
+	tilesClips[TOP_LEFT_TILE].x = 0;
+	tilesClips[TOP_LEFT_TILE].y = 24;
+	tilesClips[TOP_LEFT_TILE].w = TILE_WIDTH;
+	tilesClips[TOP_LEFT_TILE].h = TILE_HEIGHT;
+
+	tilesClips[TOP_RIGHT_TILE].x = 24;
+	tilesClips[TOP_RIGHT_TILE].y = 24;
+	tilesClips[TOP_RIGHT_TILE].w = TILE_WIDTH;
+	tilesClips[TOP_RIGHT_TILE].h = TILE_HEIGHT;
+
+	tilesClips[BOT_LEFT_TILE].x = 48;
+	tilesClips[BOT_LEFT_TILE].y = 24;
+	tilesClips[BOT_LEFT_TILE].w = TILE_WIDTH;
+	tilesClips[BOT_LEFT_TILE].h = TILE_HEIGHT;
+
+	tilesClips[BOT_RIGHT_TILE].x = 72;
+	tilesClips[BOT_RIGHT_TILE].y = 24;
+	tilesClips[BOT_RIGHT_TILE].w = TILE_WIDTH;
+	tilesClips[BOT_RIGHT_TILE].h = TILE_HEIGHT;
+
+	tilesClips[RIGHT_BORDER_TILE].x = 120;
+	tilesClips[RIGHT_BORDER_TILE].y = 24;
+	tilesClips[RIGHT_BORDER_TILE].w = TILE_WIDTH;
+	tilesClips[RIGHT_BORDER_TILE].h = TILE_HEIGHT;
+
+	tilesClips[LEFT_BORDER_TILE].x = 96;
+	tilesClips[LEFT_BORDER_TILE].y = 0;
+	tilesClips[LEFT_BORDER_TILE].w = TILE_WIDTH - 2;
+	tilesClips[LEFT_BORDER_TILE].h = TILE_HEIGHT;
 }
