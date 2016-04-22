@@ -118,11 +118,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Character.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameTexture.cpp" />
     <ClCompile Include="GameTileTexture.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Character.h" />
     <ClInclude Include="GameTexture.h" />
     <ClInclude Include="GameTileTexture.h" />
   </ItemGroup>

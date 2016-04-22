@@ -3,30 +3,45 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include "GameTileTexture.h"
+#include "Character.h"
 
 SDL_Window *init(char *title, int width, int height);
 SDL_Renderer *initRenderer(SDL_Window *window);
 int loadTiles(char *mapPath, GameTileTexture *tiles[], int numberOfTiles);
 void loadTileClips(SDL_Rect tilesClips[]);
+void loadCharacterClips(SDL_Rect characterClips[]);
+bool checkCollision(SDL_Rect a, SDL_Rect b);
+bool checkForCollisionWithTile(GameTileTexture *tiles[], int numberOfLoadedTiles, Character *character, int xOffset, int yOffset);
 
 short const WINDOW_HEIGHT = 640;
 short const WINDOW_WIDTH = 860;
 short const NUMBER_OF_TILE_TYPES = 14;
 short const NUMBER_OF_TILES = 418;
+short const NUMBER_OF_CHARACTER_SPRITES = 3;
 short const TILE_WIDTH = 24;
 short const TILE_HEIGHT = 24;
-short const MAP_WIDTH = 456;
+short const MAP_COLS = 19;
+short const MAP_ROWS = 22;
+short const MAP_WIDTH = MAP_COLS * TILE_WIDTH;
+short const MAP_HEIGHT = MAP_ROWS * TILE_HEIGHT;
 short const MAP_INIT_X_POSITION = (WINDOW_WIDTH - MAP_WIDTH) / 2;
-short const MAP_INIT_Y_POSITION = (WINDOW_HEIGHT - TILE_HEIGHT * 22) / 2;
+short const MAP_INIT_Y_POSITION = (WINDOW_HEIGHT - MAP_HEIGHT) / 2;
+short const CHARACTER_WIDTH = 24;
+short const CHARACTER_HEIGHT = 24;
+short const CHARACTER_VELOCITY = 2;
+short const CHARACTER_FRAME_DELAY = 5;
+short const CHARACTER_INIT_X_POSITION = MAP_INIT_X_POSITION + (MAP_WIDTH - CHARACTER_WIDTH) / 2;
+short const CHARACTER_INIT_Y_POSITION = MAP_INIT_Y_POSITION + (MAP_HEIGHT - CHARACTER_HEIGHT) / 2 + 36;
 
 SDL_Rect tilesClips[NUMBER_OF_TILE_TYPES];
+SDL_Rect characterClips[NUMBER_OF_CHARACTER_SPRITES];
 
 enum TileType
 {
 	LEFT_TILE = 0,
 	UP_TILE = 1,
 	RIGHT_TILE = 2,
-	DOWN_TILE = 3,   
+	DOWN_TILE = 3,
 	VERTICAL_PIPE_TILE = 4,
 	HORIZONTAL_PIPE_TILE = 5,
 	TOP_TILE = 6,
@@ -37,6 +52,14 @@ enum TileType
 	BOT_RIGHT_TILE = 11,
 	RIGHT_BORDER_TILE = 12,
 	LEFT_BORDER_TILE = 13
+};
+
+enum Direction
+{
+	LEFT = 0,
+	UP = 1,
+	RIGHT = 2,
+	DOWN = 3
 };
 
 int main(int argc, char ** argv)
@@ -56,10 +79,43 @@ int main(int argc, char ** argv)
 	GameTexture *tilesTexture = new GameTexture();
 	tilesTexture->loadFromFile("tiles.png", renderer);
 
+	loadCharacterClips(characterClips);
+
+	Character *character = new Character(
+		CHARACTER_INIT_X_POSITION,
+		CHARACTER_INIT_Y_POSITION,
+		NUMBER_OF_CHARACTER_SPRITES,
+		CHARACTER_FRAME_DELAY,
+		CHARACTER_WIDTH,
+		CHARACTER_HEIGHT);
+
+	GameTexture *characterTexture = new GameTexture();
+	characterTexture->loadFromFile("pacman-sprites.png", renderer);
+
+	Direction requestedDirection = RIGHT;
+
 	while (!hasQuit) {
 		while (SDL_PollEvent(&ev) != 0) {
 			if (ev.type == SDL_QUIT) {
 				hasQuit = true;
+			}
+			else if (ev.type == SDL_KEYDOWN && ev.key.repeat == 0) {
+				switch (ev.key.keysym.sym) {
+				case SDLK_RIGHT:
+					requestedDirection = RIGHT;
+					break;
+				case SDLK_LEFT:
+					requestedDirection = LEFT;
+					break;
+				case SDLK_UP:
+					requestedDirection = UP;
+					break;
+				case SDLK_DOWN:
+					requestedDirection = DOWN;
+					break;
+				default:
+					break;
+				}
 			}
 		}
 
@@ -68,8 +124,41 @@ int main(int argc, char ** argv)
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
 		SDL_RenderClear(renderer);
 
+		character->updateFrame(characterTexture, renderer, characterClips);
+		
+		if (requestedDirection == DOWN) {
+			if (!checkForCollisionWithTile(tiles, numberOfLoadedTiles, character, 0, CHARACTER_HEIGHT)) {
+				character->setGoingUp(false);
+				character->setMovingHorizontal(false);
+			}
+		}
+		else if (requestedDirection == UP) {
+			if (!checkForCollisionWithTile(tiles, numberOfLoadedTiles, character, 0, -CHARACTER_HEIGHT)) {
+				character->setGoingUp(true);
+				character->setMovingHorizontal(false);
+			}
+		}
+		else if (requestedDirection == LEFT) {
+			if (!checkForCollisionWithTile(tiles, numberOfLoadedTiles, character, -CHARACTER_WIDTH, 0)) {
+				character->setGoingRight(false);
+				character->setMovingHorizontal(true);
+			}
+		}
+		else if (requestedDirection == RIGHT) {
+			if (!checkForCollisionWithTile(tiles, numberOfLoadedTiles, character, CHARACTER_WIDTH, 0)) {
+				character->setGoingRight(true);
+				character->setMovingHorizontal(true);
+			}
+		}
+
+		character->moveCharacter(CHARACTER_VELOCITY);
+
 		for (int i = 0; i < numberOfLoadedTiles; i++) {
 			tiles[i]->render(renderer, tilesTexture, tilesClips);
+
+			if (checkCollision(character->getCollisionBox(), tiles[i]->getCollisionBox())) {
+				character->moveCharacter(-CHARACTER_VELOCITY);
+			}
 		}
 
 		SDL_RenderPresent(renderer);
@@ -79,6 +168,8 @@ int main(int argc, char ** argv)
 	SDL_DestroyWindow(window);
 
 	delete tilesTexture;
+	delete characterTexture;
+	delete character;
 
 	for (int i = 0; i < numberOfLoadedTiles; i++) {
 		delete tiles[i];
@@ -150,7 +241,7 @@ int loadTiles(char *mapPath, GameTileTexture *tiles[], int numberOfTiles)
 				tiles[indexOfTile] = new GameTileTexture(x, y, TILE_WIDTH, TILE_HEIGHT, tyleType - 1);
 				indexOfTile++;
 			}
-			else if (tyleType != 0){
+			else if (tyleType != 0) {
 				std::cout << "Error loading map: Unrecognized tyle type!" << std::endl;
 			}
 
@@ -167,6 +258,65 @@ int loadTiles(char *mapPath, GameTileTexture *tiles[], int numberOfTiles)
 	map.close();
 
 	return indexOfTile;
+}
+
+bool checkCollision(SDL_Rect a, SDL_Rect b)
+{
+	//The sides of the rectangles
+	int leftA, leftB;
+	int rightA, rightB;
+	int topA, topB;
+	int bottomA, bottomB;
+
+	//Calculate the sides of rect A
+	leftA = a.x;
+	rightA = a.x + a.w;
+	topA = a.y;
+	bottomA = a.y + a.h;
+
+	//Calculate the sides of rect B
+	leftB = b.x;
+	rightB = b.x + b.w;
+	topB = b.y;
+	bottomB = b.y + b.h;
+
+	//If any of the sides from A are outside of B
+	if (bottomA <= topB)
+	{
+		return false;
+	}
+
+	if (topA >= bottomB)
+	{
+		return false;
+	}
+
+	if (rightA <= leftB)
+	{
+		return false;
+	}
+
+	if (leftA >= rightB)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool checkForCollisionWithTile(GameTileTexture *tiles[], int numberOfLoadedTiles, Character *character, int xOffset, int yOffset)
+{
+	SDL_Rect offsetRect = character->getCollisionBox();
+	offsetRect.x += xOffset;
+	offsetRect.y += yOffset;
+
+	for (int i = 0; i < numberOfLoadedTiles; i++) {
+		if (checkCollision(offsetRect, tiles[i]->getCollisionBox())) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 void loadTileClips(SDL_Rect tilesClips[])
@@ -240,4 +390,22 @@ void loadTileClips(SDL_Rect tilesClips[])
 	tilesClips[LEFT_BORDER_TILE].y = 0;
 	tilesClips[LEFT_BORDER_TILE].w = TILE_WIDTH - 2;
 	tilesClips[LEFT_BORDER_TILE].h = TILE_HEIGHT;
+}
+
+void loadCharacterClips(SDL_Rect characterClips[])
+{
+	characterClips[0].x = 0;
+	characterClips[0].y = 0;
+	characterClips[0].w = CHARACTER_WIDTH;
+	characterClips[0].h = CHARACTER_HEIGHT;
+
+	characterClips[1].x = 24;
+	characterClips[1].y = 0;
+	characterClips[1].w = CHARACTER_WIDTH;
+	characterClips[1].h = CHARACTER_HEIGHT;
+
+	characterClips[2].x = 48;
+	characterClips[2].y = 0;
+	characterClips[2].w = CHARACTER_WIDTH;
+	characterClips[2].h = CHARACTER_HEIGHT;
 }
