@@ -125,30 +125,36 @@ int main(int argc, char ** argv)
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
 		SDL_RenderClear(renderer);
 
-		character->updateFrame(characterTexture, renderer, characterClips);
-		
+		// update frame of character
+		characterTexture->render(character->getX(), character->getY(), renderer, &characterClips[character->getFrame() / CHARACTER_FRAME_DELAY], character->getAngle());
+		character->increaseFrame();
+
 		if (requestedDirection == DOWN) {
 			if (!checkForCollisionWithTile(tiles, numberOfLoadedTiles, character, 0, CHARACTER_HEIGHT)) {
 				character->setGoingUp(false);
 				character->setMovingHorizontal(false);
+				character->fixAngle();
 			}
 		}
 		else if (requestedDirection == UP) {
 			if (!checkForCollisionWithTile(tiles, numberOfLoadedTiles, character, 0, -CHARACTER_HEIGHT)) {
 				character->setGoingUp(true);
 				character->setMovingHorizontal(false);
+				character->fixAngle();
 			}
 		}
 		else if (requestedDirection == LEFT) {
 			if (!checkForCollisionWithTile(tiles, numberOfLoadedTiles, character, -CHARACTER_WIDTH, 0)) {
 				character->setGoingRight(false);
 				character->setMovingHorizontal(true);
+				character->fixAngle();
 			}
 		}
 		else if (requestedDirection == RIGHT) {
 			if (!checkForCollisionWithTile(tiles, numberOfLoadedTiles, character, CHARACTER_WIDTH, 0)) {
 				character->setGoingRight(true);
 				character->setMovingHorizontal(true);
+				character->fixAngle();
 			}
 		}
 

@@ -7,8 +7,9 @@ public:
 	Character(int x, int y, int maxFrames, int frameDelay, int width, int height);
 	~Character();
 
-	void updateFrame(GameTexture *texture, SDL_Renderer *renderer, SDL_Rect characterClips[]);
+	void increaseFrame();
 	void shifCollisionBox();
+	void fixAngle();
 
 	int getX() const;
 	void setX(int value);
@@ -25,6 +26,11 @@ public:
 	bool getMovingHorizontal() const;
 	void setMovingHorizontal(bool value);
 
+	double getAngle() const;
+	void setAngle(double value);
+
+	int getFrame() const;
+
 	SDL_Rect getCollisionBox() const;
 
 private:
@@ -33,6 +39,7 @@ private:
 	int frame;
 	int maxFrames;
 	int frameDelay;
+	double angle;
 	bool goingRight;
 	bool goingUp;
 	bool movingHorizontal;

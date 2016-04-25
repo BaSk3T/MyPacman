@@ -1,7 +1,5 @@
 #include "Character.h"
 
-
-
 Character::Character(int x, int y, int maxFrames, int frameDelay, int width, int height)
 {
 	this->x = x;
@@ -10,6 +8,7 @@ Character::Character(int x, int y, int maxFrames, int frameDelay, int width, int
 	this->maxFrames = maxFrames;
 	this->frameDelay = frameDelay;
 	this->frame = 0;
+	this->angle = 0;
 	this->goingRight = true;
 	this->goingUp = false;
 	this->movingHorizontal = true;
@@ -19,23 +18,25 @@ Character::~Character()
 {
 }
 
-void Character::updateFrame(GameTexture *texture, SDL_Renderer *renderer, SDL_Rect characterClips[])
+void Character::fixAngle()
 {
-	double angle = 0;
-
 	// if none is true angle is 0 ( facing right )
-	if (!goingRight && movingHorizontal) {
-		angle = 180; // facing left
+	if (!this->goingRight && this->movingHorizontal) {
+		this->angle = 180; // facing left
 	}
-	else if (!goingUp && !movingHorizontal) {
-		angle = 90; // facing down
+	else if (!this->goingUp && !this->movingHorizontal) {
+		this->angle = 90; // facing down
 	}
-	else if (goingUp && !movingHorizontal) {
-		angle = 270; // facing up
+	else if (this->goingUp && !this->movingHorizontal) {
+		this->angle = 270; // facing up
 	}
+	else {
+		this->angle = 0; // facing right
+	}
+}
 
-	texture->render(this->x, this->y, renderer, &characterClips[this->frame / frameDelay], angle);
-
+void Character::increaseFrame()
+{
 	this->frame++;
 
 	if (this->frame / this->frameDelay >= this->maxFrames) {
@@ -102,4 +103,19 @@ void Character::setMovingHorizontal(bool value)
 SDL_Rect Character::getCollisionBox() const
 {
 	return this->collisionBox;
+}
+
+double Character::getAngle() const
+{
+	return this->angle;
+}
+
+void Character::setAngle(double value)
+{
+	this->angle = value;
+}
+
+int Character::getFrame() const
+{
+	return this->frame;
 }
