@@ -1,13 +1,15 @@
 #include <iostream>
 #include <fstream>
+#include <vector>
 #include <SDL.h>
 #include <SDL_image.h>
 #include "GameTileTexture.h"
 #include "Character.h"
+#include "Food.h"
 
 SDL_Window *init(char *title, int width, int height);
 SDL_Renderer *initRenderer(SDL_Window *window);
-int loadTiles(char *mapPath, GameTileTexture *tiles[], int numberOfTiles);
+int loadMap(char *mapPath, GameTileTexture *tiles[], int numberOfTiles, std::vector<Food> &food);
 void loadTileClips(SDL_Rect tilesClips[]);
 void loadCharacterClips(SDL_Rect characterClips[]);
 bool checkCollision(SDL_Rect a, SDL_Rect b);
@@ -16,7 +18,7 @@ void moveCharacter(Character *character, const short velocity);
 
 short const WINDOW_HEIGHT = 640;
 short const WINDOW_WIDTH = 860;
-short const NUMBER_OF_TILE_TYPES = 14;
+short const NUMBER_OF_TILE_TYPES = 15;
 short const NUMBER_OF_TILES = 418;
 short const NUMBER_OF_CHARACTER_SPRITES = 3;
 short const TILE_WIDTH = 24;
@@ -33,6 +35,8 @@ short const CHARACTER_VELOCITY = 2;
 short const CHARACTER_FRAME_DELAY = 5;
 short const CHARACTER_INIT_X_POSITION = MAP_INIT_X_POSITION + (MAP_WIDTH - CHARACTER_WIDTH) / 2;
 short const CHARACTER_INIT_Y_POSITION = MAP_INIT_Y_POSITION + (MAP_HEIGHT - CHARACTER_HEIGHT) / 2 + 36;
+short const FOOD_WIDTH = 6;
+short const FOOD_HEIGHT = 6;
 
 SDL_Rect tilesClips[NUMBER_OF_TILE_TYPES];
 SDL_Rect characterClips[NUMBER_OF_CHARACTER_SPRITES];
@@ -52,7 +56,8 @@ enum TileType
 	BOT_LEFT_TILE = 10,
 	BOT_RIGHT_TILE = 11,
 	RIGHT_BORDER_TILE = 12,
-	LEFT_BORDER_TILE = 13
+	LEFT_BORDER_TILE = 13,
+	FOOD = 14
 };
 
 enum Direction
@@ -73,8 +78,9 @@ int main(int argc, char ** argv)
 	bool hasQuit = false;
 
 	GameTileTexture *tiles[NUMBER_OF_TILES];
+	std::vector<Food> food;
 
-	int numberOfLoadedTiles = loadTiles("level.map", tiles, NUMBER_OF_TILES);
+	int numberOfLoadedTiles = loadMap("level.map", tiles, NUMBER_OF_TILES, food);
 	loadTileClips(tilesClips);
 
 	GameTexture *tilesTexture = new GameTexture();
@@ -92,6 +98,9 @@ int main(int argc, char ** argv)
 
 	GameTexture *characterTexture = new GameTexture();
 	characterTexture->loadFromFile("pacman-sprites.png", renderer);
+
+	GameTexture *foodTexture = new GameTexture();
+	foodTexture->loadFromFile("food-sprite.png", renderer);
 
 	Direction requestedDirection = RIGHT;
 
@@ -125,10 +134,6 @@ int main(int argc, char ** argv)
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
 		SDL_RenderClear(renderer);
 
-		// update frame of character
-		characterTexture->render(character->getX(), character->getY(), renderer, &characterClips[character->getFrame() / CHARACTER_FRAME_DELAY], character->getAngle());
-		character->increaseFrame();
-
 		if (requestedDirection == DOWN) {
 			if (!checkForCollisionWithTile(tiles, numberOfLoadedTiles, character, 0, CHARACTER_HEIGHT)) {
 				character->setGoingUp(false);
@@ -158,13 +163,30 @@ int main(int argc, char ** argv)
 			}
 		}
 
+		// update frame of character
+		characterTexture->render(character->getX(), character->getY(), renderer, &characterClips[character->getFrame() / CHARACTER_FRAME_DELAY], character->getAngle());
+		character->increaseFrame();
 		moveCharacter(character, CHARACTER_VELOCITY);
 
+		// update displaying of tiles
 		for (int i = 0; i < numberOfLoadedTiles; i++) {
-			tiles[i]->render(renderer, tilesTexture, tilesClips);
+			tilesTexture->render(tiles[i]->getX(), tiles[i]->getY(), renderer, &tilesClips[tiles[i]->getType()]);
 
+			// check if character has colided with any tile
 			if (checkCollision(character->getCollisionBox(), tiles[i]->getCollisionBox())) {
 				moveCharacter(character, -CHARACTER_VELOCITY);
+			}
+		}
+
+		for (unsigned int i = 0; i < food.size(); i++) {
+			if (food[i].getIsEaten()) {
+				continue;
+			}
+
+			foodTexture->render(food[i].getX(), food[i].getY(), renderer);
+
+			if (checkCollision(character->getCollisionBox(), food[i].getCollisionBox())) {
+				food[i].setIsEaten(true);
 			}
 		}
 
@@ -176,6 +198,7 @@ int main(int argc, char ** argv)
 
 	delete tilesTexture;
 	delete characterTexture;
+	delete foodTexture;
 	delete character;
 
 	for (int i = 0; i < numberOfLoadedTiles; i++) {
@@ -222,7 +245,7 @@ SDL_Renderer *initRenderer(SDL_Window *window)
 	return renderer;
 }
 
-int loadTiles(char *mapPath, GameTileTexture *tiles[], int numberOfTiles)
+int loadMap(char *mapPath, GameTileTexture *tiles[], int numberOfTiles, std::vector<Food> &food)
 {
 	int x = MAP_INIT_X_POSITION;
 	int y = MAP_INIT_Y_POSITION;
@@ -244,12 +267,15 @@ int loadTiles(char *mapPath, GameTileTexture *tiles[], int numberOfTiles)
 				std::cout << "Error loading map: Unexpected end of file!" << std::endl;
 			}
 
-			if (1 <= tyleType && tyleType <= NUMBER_OF_TILE_TYPES) {
+			if (tyleType > NUMBER_OF_TILE_TYPES) {
+				std::cout << "Error loading map: Unrecognized tyle type!" << std::endl;
+			}
+			else if (1 <= tyleType && tyleType < NUMBER_OF_TILE_TYPES) {
 				tiles[indexOfTile] = new GameTileTexture(x, y, TILE_WIDTH, TILE_HEIGHT, tyleType - 1);
 				indexOfTile++;
 			}
-			else if (tyleType != 0) {
-				std::cout << "Error loading map: Unrecognized tyle type!" << std::endl;
+			else if (tyleType - 1 == FOOD) {
+				food.push_back(Food(x, y, x + (TILE_WIDTH - FOOD_WIDTH) / 2, y + (TILE_HEIGHT - FOOD_HEIGHT) / 2, FOOD_WIDTH, FOOD_HEIGHT));
 			}
 
 			x += TILE_WIDTH;

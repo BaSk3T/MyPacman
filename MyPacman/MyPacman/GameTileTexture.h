@@ -8,8 +8,6 @@ public:
 	GameTileTexture(int x, int y, int width, int height, int tileType);
 	~GameTileTexture();
 
-	void render(SDL_Renderer *renderer, GameTexture *tilesTexture, SDL_Rect tiles[]);
-
 	int getX() const;
 	void setX(int value);
 

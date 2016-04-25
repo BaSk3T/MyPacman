@@ -23,11 +23,6 @@ GameTileTexture::~GameTileTexture()
 {
 }
 
-void GameTileTexture::render(SDL_Renderer *renderer, GameTexture *tilesTexture, SDL_Rect tiles[])
-{
-	tilesTexture->render(this->x, this->y, renderer, &tiles[this->type]);
-}
-
 int GameTileTexture::getX() const
 {
 	return this->x;
