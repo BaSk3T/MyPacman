@@ -43,28 +43,10 @@ void Character::updateFrame(GameTexture *texture, SDL_Renderer *renderer, SDL_Re
 	}
 }
 
-void Character::moveCharacter(const short velocity)
+void Character::shifCollisionBox()
 {
-	if (this->movingHorizontal) {
-		if (this->goingRight) {
-			this->x += velocity;
-			this->collisionBox.x += velocity;
-		}
-		else {
-			this->x -= velocity;
-			this->collisionBox.x -= velocity;
-		}
-	}
-	else {
-		if (this->goingUp) {
-			this->y -= velocity;
-			this->collisionBox.y -= velocity;
-		}
-		else {
-			this->y += velocity;
-			this->collisionBox.y += velocity;
-		}
-	}
+	this->collisionBox.x = this->x;
+	this->collisionBox.y = this->y;
 }
 
 int Character::getX() const

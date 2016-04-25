@@ -12,6 +12,7 @@ void loadTileClips(SDL_Rect tilesClips[]);
 void loadCharacterClips(SDL_Rect characterClips[]);
 bool checkCollision(SDL_Rect a, SDL_Rect b);
 bool checkForCollisionWithTile(GameTileTexture *tiles[], int numberOfLoadedTiles, Character *character, int xOffset, int yOffset);
+void moveCharacter(Character *character, const short velocity);
 
 short const WINDOW_HEIGHT = 640;
 short const WINDOW_WIDTH = 860;
@@ -151,13 +152,13 @@ int main(int argc, char ** argv)
 			}
 		}
 
-		character->moveCharacter(CHARACTER_VELOCITY);
+		moveCharacter(character, CHARACTER_VELOCITY);
 
 		for (int i = 0; i < numberOfLoadedTiles; i++) {
 			tiles[i]->render(renderer, tilesTexture, tilesClips);
 
 			if (checkCollision(character->getCollisionBox(), tiles[i]->getCollisionBox())) {
-				character->moveCharacter(-CHARACTER_VELOCITY);
+				moveCharacter(character, -CHARACTER_VELOCITY);
 			}
 		}
 
@@ -317,6 +318,28 @@ bool checkForCollisionWithTile(GameTileTexture *tiles[], int numberOfLoadedTiles
 	}
 
 	return false;
+}
+
+void moveCharacter(Character *character, const short velocity)
+{
+	if (character->getMovingHorizontal()) {
+		if (character->getGoingRight()) {
+			character->setX(character->getX() + velocity);
+		}
+		else {
+			character->setX(character->getX() - velocity);
+		}
+	}
+	else {
+		if (character->getGoingUp()) {
+			character->setY(character->getY() - velocity);
+		}
+		else {
+			character->setY(character->getY() + velocity);
+		}
+	}
+
+	character->shifCollisionBox();
 }
 
 void loadTileClips(SDL_Rect tilesClips[])

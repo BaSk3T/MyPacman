@@ -8,7 +8,7 @@ public:
 	~Character();
 
 	void updateFrame(GameTexture *texture, SDL_Renderer *renderer, SDL_Rect characterClips[]);
-	void moveCharacter(const short velocity);
+	void shifCollisionBox();
 
 	int getX() const;
 	void setX(int value);
