@@ -6,6 +6,8 @@
 #include "GameTileTexture.h"
 #include "Character.h"
 #include "Food.h"
+#include "TileType.h"
+#include "Direction.h"
 
 SDL_Window *init(char *title, int width, int height);
 SDL_Renderer *initRenderer(SDL_Window *window);
@@ -14,6 +16,7 @@ void loadTileClips(SDL_Rect tilesClips[]);
 void loadCharacterClips(SDL_Rect characterClips[]);
 bool checkCollision(SDL_Rect a, SDL_Rect b);
 bool checkForCollisionWithTile(GameTileTexture *tiles[], int numberOfLoadedTiles, Character *character, int xOffset, int yOffset);
+void changeCharacterDirectionIfPossible(Direction requestedDirection, Character *character, GameTileTexture **tiles, int numberOfLoadedTiles, bool fixAngle);
 void moveCharacter(Character *character, const short velocity);
 
 short const WINDOW_HEIGHT = 640;
@@ -41,33 +44,6 @@ short const FOOD_HEIGHT = 6;
 SDL_Rect tilesClips[NUMBER_OF_TILE_TYPES];
 SDL_Rect characterClips[NUMBER_OF_CHARACTER_SPRITES];
 
-enum TileType
-{
-	LEFT_TILE = 0,
-	UP_TILE = 1,
-	RIGHT_TILE = 2,
-	DOWN_TILE = 3,
-	VERTICAL_PIPE_TILE = 4,
-	HORIZONTAL_PIPE_TILE = 5,
-	TOP_TILE = 6,
-	BOT_TILE = 7,
-	TOP_LEFT_TILE = 8,
-	TOP_RIGHT_TILE = 9,
-	BOT_LEFT_TILE = 10,
-	BOT_RIGHT_TILE = 11,
-	RIGHT_BORDER_TILE = 12,
-	LEFT_BORDER_TILE = 13,
-	FOOD = 14
-};
-
-enum Direction
-{
-	LEFT = 0,
-	UP = 1,
-	RIGHT = 2,
-	DOWN = 3
-};
-
 int main(int argc, char ** argv)
 {
 	SDL_Window *window = init("MyPacman", WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -79,6 +55,13 @@ int main(int argc, char ** argv)
 
 	GameTileTexture *tiles[NUMBER_OF_TILES];
 	std::vector<Food> food;
+
+	SDL_Rect pinkyClips[4][2] = {
+		{ { 0, 0, 24, 24 },{ 0, 24, 24, 24 } },
+		{ { 24, 0, 24, 24 },{ 24, 24, 24, 24 } },
+		{ { 48, 0, 24, 24 },{ 48, 24, 24, 24 } },
+		{ { 72, 0, 24, 24 },{ 72, 24, 24, 24 } } 
+	};
 
 	int numberOfLoadedTiles = loadMap("level.map", tiles, NUMBER_OF_TILES, food);
 	loadTileClips(tilesClips);
@@ -96,13 +79,19 @@ int main(int argc, char ** argv)
 		CHARACTER_WIDTH,
 		CHARACTER_HEIGHT);
 
+	Character *pinky = new Character(0, 150, 2, 4, 24, 24);
+
+	GameTexture *pinkyTexture = new GameTexture();
+	pinkyTexture->loadFromFile("pinky-sprite.png", renderer);
+
 	GameTexture *characterTexture = new GameTexture();
-	characterTexture->loadFromFile("pacman-sprites.png", renderer);
+	characterTexture->loadFromFile("pacman-sprite.png", renderer);
 
 	GameTexture *foodTexture = new GameTexture();
 	foodTexture->loadFromFile("food-sprite.png", renderer);
 
 	Direction requestedDirection = RIGHT;
+	Direction pinkyDirection = DOWN;
 
 	while (!hasQuit) {
 		while (SDL_PollEvent(&ev) != 0) {
@@ -113,15 +102,19 @@ int main(int argc, char ** argv)
 				switch (ev.key.keysym.sym) {
 				case SDLK_RIGHT:
 					requestedDirection = RIGHT;
+					pinkyDirection = RIGHT;
 					break;
 				case SDLK_LEFT:
 					requestedDirection = LEFT;
+					pinkyDirection = LEFT;
 					break;
 				case SDLK_UP:
 					requestedDirection = UP;
+					pinkyDirection = UP;
 					break;
 				case SDLK_DOWN:
 					requestedDirection = DOWN;
+					pinkyDirection = DOWN;
 					break;
 				default:
 					break;
@@ -134,39 +127,21 @@ int main(int argc, char ** argv)
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
 		SDL_RenderClear(renderer);
 
-		if (requestedDirection == DOWN) {
-			if (!checkForCollisionWithTile(tiles, numberOfLoadedTiles, character, 0, CHARACTER_HEIGHT)) {
-				character->setGoingUp(false);
-				character->setMovingHorizontal(false);
-				character->fixAngle();
-			}
-		}
-		else if (requestedDirection == UP) {
-			if (!checkForCollisionWithTile(tiles, numberOfLoadedTiles, character, 0, -CHARACTER_HEIGHT)) {
-				character->setGoingUp(true);
-				character->setMovingHorizontal(false);
-				character->fixAngle();
-			}
-		}
-		else if (requestedDirection == LEFT) {
-			if (!checkForCollisionWithTile(tiles, numberOfLoadedTiles, character, -CHARACTER_WIDTH, 0)) {
-				character->setGoingRight(false);
-				character->setMovingHorizontal(true);
-				character->fixAngle();
-			}
-		}
-		else if (requestedDirection == RIGHT) {
-			if (!checkForCollisionWithTile(tiles, numberOfLoadedTiles, character, CHARACTER_WIDTH, 0)) {
-				character->setGoingRight(true);
-				character->setMovingHorizontal(true);
-				character->fixAngle();
-			}
-		}
+		// character 
+		changeCharacterDirectionIfPossible(requestedDirection, character, tiles, numberOfLoadedTiles, true);
 
 		// update frame of character
 		characterTexture->render(character->getX(), character->getY(), renderer, &characterClips[character->getFrame() / CHARACTER_FRAME_DELAY], character->getAngle());
 		character->increaseFrame();
 		moveCharacter(character, CHARACTER_VELOCITY);
+
+		//pinky
+		changeCharacterDirectionIfPossible(pinkyDirection, pinky, tiles, numberOfLoadedTiles, false);
+
+		// update frame of pinky
+		pinkyTexture->render(pinky->getX(), pinky->getY(), renderer, &pinkyClips[pinkyDirection][pinky->getFrame() / CHARACTER_FRAME_DELAY], pinky->getAngle());
+		pinky->increaseFrame();
+		moveCharacter(pinky, CHARACTER_VELOCITY);
 
 		// update displaying of tiles
 		for (int i = 0; i < numberOfLoadedTiles; i++) {
@@ -175,6 +150,11 @@ int main(int argc, char ** argv)
 			// check if character has colided with any tile
 			if (checkCollision(character->getCollisionBox(), tiles[i]->getCollisionBox())) {
 				moveCharacter(character, -CHARACTER_VELOCITY);
+			}
+
+			// check if pinky has colided with any tile
+			if (checkCollision(pinky->getCollisionBox(), tiles[i]->getCollisionBox())) {
+				moveCharacter(pinky, -CHARACTER_VELOCITY);
 			}
 		}
 
@@ -198,8 +178,10 @@ int main(int argc, char ** argv)
 
 	delete tilesTexture;
 	delete characterTexture;
+	delete pinkyTexture;
 	delete foodTexture;
 	delete character;
+	delete pinky;
 
 	for (int i = 0; i < numberOfLoadedTiles; i++) {
 		delete tiles[i];
@@ -372,6 +354,52 @@ void moveCharacter(Character *character, const short velocity)
 	}
 
 	character->shifCollisionBox();
+}
+
+void changeCharacterDirectionIfPossible(Direction requestedDirection, Character *character, GameTileTexture **tiles, int numberOfLoadedTiles, bool fixAngle)
+{
+	SDL_Rect characterCollisionBox = character->getCollisionBox();
+
+	if (requestedDirection == DOWN) {
+		if (!checkForCollisionWithTile(tiles, numberOfLoadedTiles, character, 0, characterCollisionBox.h)) {
+			character->setGoingUp(false);
+			character->setMovingHorizontal(false);
+
+			if (fixAngle) {
+				character->fixAngle();
+			}
+		}
+	}
+	else if (requestedDirection == UP) {
+		if (!checkForCollisionWithTile(tiles, numberOfLoadedTiles, character, 0, -characterCollisionBox.h)) {
+			character->setGoingUp(true);
+			character->setMovingHorizontal(false);
+
+			if (fixAngle) {
+				character->fixAngle();
+			}
+		}
+	}
+	else if (requestedDirection == LEFT) {
+		if (!checkForCollisionWithTile(tiles, numberOfLoadedTiles, character, -characterCollisionBox.w, 0)) {
+			character->setGoingRight(false);
+			character->setMovingHorizontal(true);
+
+			if (fixAngle) {
+				character->fixAngle();
+			}
+		}
+	}
+	else if (requestedDirection == RIGHT) {
+		if (!checkForCollisionWithTile(tiles, numberOfLoadedTiles, character, characterCollisionBox.w, 0)) {
+			character->setGoingRight(true);
+			character->setMovingHorizontal(true);
+
+			if (fixAngle) {
+				character->fixAngle();
+			}
+		}
+	}
 }
 
 void loadTileClips(SDL_Rect tilesClips[])
