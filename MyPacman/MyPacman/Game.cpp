@@ -79,7 +79,7 @@ int main(int argc, char ** argv)
 		CHARACTER_WIDTH,
 		CHARACTER_HEIGHT);
 
-	Character *pinky = new Character(0, 150, 2, 4, 24, 24);
+	Character *pinky = new Character(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - 72, 2, 4, 24, 24);
 
 	GameTexture *pinkyTexture = new GameTexture();
 	pinkyTexture->loadFromFile("pinky-sprite.png", renderer);
@@ -93,6 +93,8 @@ int main(int argc, char ** argv)
 	Direction requestedDirection = RIGHT;
 	Direction pinkyDirection = DOWN;
 
+	int shouldSwitchDirection;
+
 	while (!hasQuit) {
 		while (SDL_PollEvent(&ev) != 0) {
 			if (ev.type == SDL_QUIT) {
@@ -102,19 +104,15 @@ int main(int argc, char ** argv)
 				switch (ev.key.keysym.sym) {
 				case SDLK_RIGHT:
 					requestedDirection = RIGHT;
-					pinkyDirection = RIGHT;
 					break;
 				case SDLK_LEFT:
 					requestedDirection = LEFT;
-					pinkyDirection = LEFT;
 					break;
 				case SDLK_UP:
 					requestedDirection = UP;
-					pinkyDirection = UP;
 					break;
 				case SDLK_DOWN:
 					requestedDirection = DOWN;
-					pinkyDirection = DOWN;
 					break;
 				default:
 					break;
@@ -129,19 +127,37 @@ int main(int argc, char ** argv)
 
 		// character 
 		changeCharacterDirectionIfPossible(requestedDirection, character, tiles, numberOfLoadedTiles, true);
-
-		// update frame of character
-		characterTexture->render(character->getX(), character->getY(), renderer, &characterClips[character->getFrame() / CHARACTER_FRAME_DELAY], character->getAngle());
-		character->increaseFrame();
 		moveCharacter(character, CHARACTER_VELOCITY);
+
+		shouldSwitchDirection = (std::rand() % 1000) % 34;
+
+		if (shouldSwitchDirection == 0) {
+			pinkyDirection = (Direction)(std::rand() % 4);
+		}
 
 		//pinky
 		changeCharacterDirectionIfPossible(pinkyDirection, pinky, tiles, numberOfLoadedTiles, false);
+		moveCharacter(pinky, CHARACTER_VELOCITY);
+
+		for (unsigned int i = 0; i < food.size(); i++) {
+			if (food[i].getIsEaten()) {
+				continue;
+			}
+
+			foodTexture->render(food[i].getX(), food[i].getY(), renderer);
+
+			if (checkCollision(character->getCollisionBox(), food[i].getCollisionBox())) {
+				food[i].setIsEaten(true);
+			}
+		}
 
 		// update frame of pinky
 		pinkyTexture->render(pinky->getX(), pinky->getY(), renderer, &pinkyClips[pinkyDirection][pinky->getFrame() / CHARACTER_FRAME_DELAY], pinky->getAngle());
 		pinky->increaseFrame();
-		moveCharacter(pinky, CHARACTER_VELOCITY);
+
+		// update frame of character
+		characterTexture->render(character->getX(), character->getY(), renderer, &characterClips[character->getFrame() / CHARACTER_FRAME_DELAY], character->getAngle());
+		character->increaseFrame();
 
 		// update displaying of tiles
 		for (int i = 0; i < numberOfLoadedTiles; i++) {
@@ -155,18 +171,7 @@ int main(int argc, char ** argv)
 			// check if pinky has colided with any tile
 			if (checkCollision(pinky->getCollisionBox(), tiles[i]->getCollisionBox())) {
 				moveCharacter(pinky, -CHARACTER_VELOCITY);
-			}
-		}
-
-		for (unsigned int i = 0; i < food.size(); i++) {
-			if (food[i].getIsEaten()) {
-				continue;
-			}
-
-			foodTexture->render(food[i].getX(), food[i].getY(), renderer);
-
-			if (checkCollision(character->getCollisionBox(), food[i].getCollisionBox())) {
-				food[i].setIsEaten(true);
+				pinkyDirection = (Direction)(std::rand() % 4);
 			}
 		}
 
