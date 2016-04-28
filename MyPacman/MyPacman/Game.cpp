@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <queue>
 #include <cstdlib>
 #include <ctime>
 #include <SDL.h>
@@ -13,12 +14,12 @@
 
 SDL_Window *init(char *title, int width, int height);
 SDL_Renderer *initRenderer(SDL_Window *window);
-int loadMap(char *mapPath, GameTileTexture *tiles[], int numberOfTiles, std::vector<Food> &food);
+void loadMap(char *mapPath, std::vector<GameTileTexture> &tiles, std::vector<Food> &food);
 void loadTileClips(SDL_Rect tilesClips[]);
 void loadCharacterClips(SDL_Rect characterClips[]);
 bool checkCollision(SDL_Rect a, SDL_Rect b);
-bool checkForCollisionWithTile(GameTileTexture *tiles[], int numberOfLoadedTiles, Character *character, int xOffset, int yOffset);
-bool changeCharacterDirectionIfPossible(Direction requestedDirection, Character *character, GameTileTexture **tiles, int numberOfLoadedTiles, bool fixAngle);
+bool checkForCollisionWithTile(std::vector<GameTileTexture> &tiles, Character *character, int xOffset, int yOffset);
+bool changeCharacterDirectionIfPossible(Direction requestedDirection, Character *character, std::vector<GameTileTexture> &tiles, bool fixAngle);
 void moveCharacter(Character *character, const short velocity);
 
 short const WINDOW_HEIGHT = 640;
@@ -57,8 +58,9 @@ int main(int argc, char ** argv)
 	int delay = 1000 / 60;
 	bool hasQuit = false;
 
-	GameTileTexture *tiles[NUMBER_OF_TILES];
+	std::vector<GameTileTexture> tiles;
 	std::vector<Food> food;
+	std::queue<SDL_Rect> trail;
 
 	SDL_Rect pinkyClips[4][2] = {
 		{ { 0, 0, 24, 24 },{ 0, 24, 24, 24 } },
@@ -67,7 +69,7 @@ int main(int argc, char ** argv)
 		{ { 72, 0, 24, 24 },{ 72, 24, 24, 24 } } 
 	};
 
-	int numberOfLoadedTiles = loadMap("level.map", tiles, NUMBER_OF_TILES, food);
+	loadMap("level.map", tiles, food);
 	loadTileClips(tilesClips);
 
 	GameTexture *tilesTexture = new GameTexture();
@@ -83,7 +85,7 @@ int main(int argc, char ** argv)
 		CHARACTER_WIDTH,
 		CHARACTER_HEIGHT);
 
-	Character *pinky = new Character(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - 72, 2, 4, 24, 24);
+	Character *pinky = new Character(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - 72, 2, CHARACTER_FRAME_DELAY, CHARACTER_WIDTH, CHARACTER_HEIGHT);
 
 	GameTexture *pinkyTexture = new GameTexture();
 	pinkyTexture->loadFromFile("pinky-sprite.png", renderer);
@@ -131,7 +133,7 @@ int main(int argc, char ** argv)
 		SDL_RenderClear(renderer);
 
 		// character 
-		changeCharacterDirectionIfPossible(requestedDirection, character, tiles, numberOfLoadedTiles, true);
+		changeCharacterDirectionIfPossible(requestedDirection, character, tiles, true);
 		moveCharacter(character, CHARACTER_VELOCITY);
 
 		shouldSwitchDirection = (std::rand() % 1000) % 237;
@@ -146,7 +148,7 @@ int main(int argc, char ** argv)
 		}
 
 		//pinky
-		bool pinkyHasChangedDirection = changeCharacterDirectionIfPossible(pinkyRequestedDirection, pinky, tiles, numberOfLoadedTiles, false);
+		bool pinkyHasChangedDirection = changeCharacterDirectionIfPossible(pinkyRequestedDirection, pinky, tiles, false);
 		moveCharacter(pinky, CHARACTER_VELOCITY);
 
 		if (pinkyHasChangedDirection) {
@@ -174,16 +176,16 @@ int main(int argc, char ** argv)
 		character->increaseFrame();
 
 		// update displaying of tiles
-		for (int i = 0; i < numberOfLoadedTiles; i++) {
-			tilesTexture->render(tiles[i]->getX(), tiles[i]->getY(), renderer, &tilesClips[tiles[i]->getType()]);
+		for (unsigned int i = 0; i < tiles.size(); i++) {
+			tilesTexture->render(tiles[i].getX(), tiles[i].getY(), renderer, &tilesClips[tiles[i].getType()]);
 
 			// check if character has colided with any tile
-			if (checkCollision(character->getCollisionBox(), tiles[i]->getCollisionBox())) {
+			if (checkCollision(character->getCollisionBox(), tiles[i].getCollisionBox())) {
 				moveCharacter(character, -CHARACTER_VELOCITY);
 			}
 
 			// check if pinky has colided with any tile
-			if (checkCollision(pinky->getCollisionBox(), tiles[i]->getCollisionBox())) {
+			if (checkCollision(pinky->getCollisionBox(), tiles[i].getCollisionBox())) {
 				moveCharacter(pinky, -CHARACTER_VELOCITY);
 
 				if (pinkyRequestedDirection % 2 == 0) {
@@ -207,10 +209,6 @@ int main(int argc, char ** argv)
 	delete foodTexture;
 	delete character;
 	delete pinky;
-
-	for (int i = 0; i < numberOfLoadedTiles; i++) {
-		delete tiles[i];
-	}
 
 	IMG_Quit();
 	SDL_Quit();
@@ -252,12 +250,10 @@ SDL_Renderer *initRenderer(SDL_Window *window)
 	return renderer;
 }
 
-int loadMap(char *mapPath, GameTileTexture *tiles[], int numberOfTiles, std::vector<Food> &food)
+void loadMap(char *mapPath, std::vector<GameTileTexture> &tiles, std::vector<Food> &food)
 {
 	int x = MAP_INIT_X_POSITION;
 	int y = MAP_INIT_Y_POSITION;
-
-	int indexOfTile = 0;
 
 	std::ifstream map(mapPath);
 
@@ -265,7 +261,7 @@ int loadMap(char *mapPath, GameTileTexture *tiles[], int numberOfTiles, std::vec
 		std::cout << "Unable to load map file!" << std::endl;
 	}
 	else {
-		for (short i = 0; i < numberOfTiles; i++) {
+		for (short i = 0; i < NUMBER_OF_TILES; i++) {
 			int tyleType = -1;
 
 			map >> tyleType;
@@ -278,8 +274,7 @@ int loadMap(char *mapPath, GameTileTexture *tiles[], int numberOfTiles, std::vec
 				std::cout << "Error loading map: Unrecognized tyle type!" << std::endl;
 			}
 			else if (1 <= tyleType && tyleType < NUMBER_OF_TILE_TYPES) {
-				tiles[indexOfTile] = new GameTileTexture(x, y, TILE_WIDTH, TILE_HEIGHT, tyleType - 1);
-				indexOfTile++;
+				tiles.push_back(GameTileTexture(x, y, TILE_WIDTH, TILE_HEIGHT, tyleType - 1));
 			}
 			else if (tyleType - 1 == FOOD) {
 				food.push_back(Food(x, y, x + (TILE_WIDTH - FOOD_WIDTH) / 2, y + (TILE_HEIGHT - FOOD_HEIGHT) / 2, FOOD_WIDTH, FOOD_HEIGHT));
@@ -296,8 +291,6 @@ int loadMap(char *mapPath, GameTileTexture *tiles[], int numberOfTiles, std::vec
 	}
 
 	map.close();
-
-	return indexOfTile;
 }
 
 bool checkCollision(SDL_Rect a, SDL_Rect b)
@@ -344,14 +337,14 @@ bool checkCollision(SDL_Rect a, SDL_Rect b)
 	return true;
 }
 
-bool checkForCollisionWithTile(GameTileTexture *tiles[], int numberOfLoadedTiles, Character *character, int xOffset, int yOffset)
+bool checkForCollisionWithTile(std::vector<GameTileTexture> &tiles, Character *character, int xOffset, int yOffset)
 {
 	SDL_Rect offsetRect = character->getCollisionBox();
 	offsetRect.x += xOffset;
 	offsetRect.y += yOffset;
 
-	for (int i = 0; i < numberOfLoadedTiles; i++) {
-		if (checkCollision(offsetRect, tiles[i]->getCollisionBox())) {
+	for (unsigned int i = 0; i < tiles.size(); i++) {
+		if (checkCollision(offsetRect, tiles[i].getCollisionBox())) {
 			return true;
 		}
 	}
@@ -381,14 +374,14 @@ void moveCharacter(Character *character, const short velocity)
 	character->shifCollisionBox();
 }
 
-bool changeCharacterDirectionIfPossible(Direction requestedDirection, Character *character, GameTileTexture **tiles, int numberOfLoadedTiles, bool fixAngle)
+bool changeCharacterDirectionIfPossible(Direction requestedDirection, Character *character, std::vector<GameTileTexture> &tiles, bool fixAngle)
 {
 	bool changedDirection = false;
 
 	SDL_Rect characterCollisionBox = character->getCollisionBox();
 
 	if (requestedDirection == DOWN) {
-		if (!checkForCollisionWithTile(tiles, numberOfLoadedTiles, character, 0, characterCollisionBox.h)) {
+		if (!checkForCollisionWithTile(tiles, character, 0, characterCollisionBox.h)) {
 			character->setGoingUp(false);
 			character->setMovingHorizontal(false);
 			changedDirection = true;
@@ -399,7 +392,7 @@ bool changeCharacterDirectionIfPossible(Direction requestedDirection, Character 
 		}
 	}
 	else if (requestedDirection == UP) {
-		if (!checkForCollisionWithTile(tiles, numberOfLoadedTiles, character, 0, -characterCollisionBox.h)) {
+		if (!checkForCollisionWithTile(tiles, character, 0, -characterCollisionBox.h)) {
 			character->setGoingUp(true);
 			character->setMovingHorizontal(false);
 			changedDirection = true;
@@ -410,7 +403,7 @@ bool changeCharacterDirectionIfPossible(Direction requestedDirection, Character 
 		}
 	}
 	else if (requestedDirection == LEFT) {
-		if (!checkForCollisionWithTile(tiles, numberOfLoadedTiles, character, -characterCollisionBox.w, 0)) {
+		if (!checkForCollisionWithTile(tiles, character, -characterCollisionBox.w, 0)) {
 			character->setGoingRight(false);
 			character->setMovingHorizontal(true);
 			changedDirection = true;
@@ -421,7 +414,7 @@ bool changeCharacterDirectionIfPossible(Direction requestedDirection, Character 
 		}
 	}
 	else if (requestedDirection == RIGHT) {
-		if (!checkForCollisionWithTile(tiles, numberOfLoadedTiles, character, characterCollisionBox.w, 0)) {
+		if (!checkForCollisionWithTile(tiles, character, characterCollisionBox.w, 0)) {
 			character->setGoingRight(true);
 			character->setMovingHorizontal(true);
 			changedDirection = true;
