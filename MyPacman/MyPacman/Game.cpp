@@ -1,6 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <cstdlib>
+#include <ctime>
 #include <SDL.h>
 #include <SDL_image.h>
 #include "GameTileTexture.h"
@@ -16,7 +18,7 @@ void loadTileClips(SDL_Rect tilesClips[]);
 void loadCharacterClips(SDL_Rect characterClips[]);
 bool checkCollision(SDL_Rect a, SDL_Rect b);
 bool checkForCollisionWithTile(GameTileTexture *tiles[], int numberOfLoadedTiles, Character *character, int xOffset, int yOffset);
-void changeCharacterDirectionIfPossible(Direction requestedDirection, Character *character, GameTileTexture **tiles, int numberOfLoadedTiles, bool fixAngle);
+bool changeCharacterDirectionIfPossible(Direction requestedDirection, Character *character, GameTileTexture **tiles, int numberOfLoadedTiles, bool fixAngle);
 void moveCharacter(Character *character, const short velocity);
 
 short const WINDOW_HEIGHT = 640;
@@ -46,6 +48,8 @@ SDL_Rect characterClips[NUMBER_OF_CHARACTER_SPRITES];
 
 int main(int argc, char ** argv)
 {
+	srand(time(NULL));
+
 	SDL_Window *window = init("MyPacman", WINDOW_WIDTH, WINDOW_HEIGHT);
 	SDL_Renderer *renderer = initRenderer(window);
 
@@ -91,6 +95,7 @@ int main(int argc, char ** argv)
 	foodTexture->loadFromFile("food-sprite.png", renderer);
 
 	Direction requestedDirection = RIGHT;
+	Direction pinkyRequestedDirection = DOWN;
 	Direction pinkyDirection = DOWN;
 
 	int shouldSwitchDirection;
@@ -129,15 +134,24 @@ int main(int argc, char ** argv)
 		changeCharacterDirectionIfPossible(requestedDirection, character, tiles, numberOfLoadedTiles, true);
 		moveCharacter(character, CHARACTER_VELOCITY);
 
-		shouldSwitchDirection = (std::rand() % 1000) % 34;
+		shouldSwitchDirection = (std::rand() % 1000) % 237;
 
 		if (shouldSwitchDirection == 0) {
-			pinkyDirection = (Direction)(std::rand() % 4);
+			if (pinkyRequestedDirection % 2 == 0) {
+				pinkyRequestedDirection = (std::rand() % 2) == 1 ? UP : DOWN;
+			}
+			else {
+				pinkyRequestedDirection = (std::rand() % 2) == 1 ? LEFT : RIGHT;
+			}
 		}
 
 		//pinky
-		changeCharacterDirectionIfPossible(pinkyDirection, pinky, tiles, numberOfLoadedTiles, false);
+		bool pinkyHasChangedDirection = changeCharacterDirectionIfPossible(pinkyRequestedDirection, pinky, tiles, numberOfLoadedTiles, false);
 		moveCharacter(pinky, CHARACTER_VELOCITY);
+
+		if (pinkyHasChangedDirection) {
+			pinkyDirection = pinkyRequestedDirection;
+		}
 
 		for (unsigned int i = 0; i < food.size(); i++) {
 			if (food[i].getIsEaten()) {
@@ -171,7 +185,13 @@ int main(int argc, char ** argv)
 			// check if pinky has colided with any tile
 			if (checkCollision(pinky->getCollisionBox(), tiles[i]->getCollisionBox())) {
 				moveCharacter(pinky, -CHARACTER_VELOCITY);
-				pinkyDirection = (Direction)(std::rand() % 4);
+
+				if (pinkyRequestedDirection % 2 == 0) {
+					pinkyRequestedDirection = (std::rand() % 2) == 1 ? UP : DOWN;
+				}
+				else {
+					pinkyRequestedDirection = (std::rand() % 2) == 1 ? LEFT : RIGHT;
+				}
 			}
 		}
 
@@ -361,14 +381,17 @@ void moveCharacter(Character *character, const short velocity)
 	character->shifCollisionBox();
 }
 
-void changeCharacterDirectionIfPossible(Direction requestedDirection, Character *character, GameTileTexture **tiles, int numberOfLoadedTiles, bool fixAngle)
+bool changeCharacterDirectionIfPossible(Direction requestedDirection, Character *character, GameTileTexture **tiles, int numberOfLoadedTiles, bool fixAngle)
 {
+	bool changedDirection = false;
+
 	SDL_Rect characterCollisionBox = character->getCollisionBox();
 
 	if (requestedDirection == DOWN) {
 		if (!checkForCollisionWithTile(tiles, numberOfLoadedTiles, character, 0, characterCollisionBox.h)) {
 			character->setGoingUp(false);
 			character->setMovingHorizontal(false);
+			changedDirection = true;
 
 			if (fixAngle) {
 				character->fixAngle();
@@ -379,6 +402,7 @@ void changeCharacterDirectionIfPossible(Direction requestedDirection, Character 
 		if (!checkForCollisionWithTile(tiles, numberOfLoadedTiles, character, 0, -characterCollisionBox.h)) {
 			character->setGoingUp(true);
 			character->setMovingHorizontal(false);
+			changedDirection = true;
 
 			if (fixAngle) {
 				character->fixAngle();
@@ -389,6 +413,7 @@ void changeCharacterDirectionIfPossible(Direction requestedDirection, Character 
 		if (!checkForCollisionWithTile(tiles, numberOfLoadedTiles, character, -characterCollisionBox.w, 0)) {
 			character->setGoingRight(false);
 			character->setMovingHorizontal(true);
+			changedDirection = true;
 
 			if (fixAngle) {
 				character->fixAngle();
@@ -399,12 +424,15 @@ void changeCharacterDirectionIfPossible(Direction requestedDirection, Character 
 		if (!checkForCollisionWithTile(tiles, numberOfLoadedTiles, character, characterCollisionBox.w, 0)) {
 			character->setGoingRight(true);
 			character->setMovingHorizontal(true);
+			changedDirection = true;
 
 			if (fixAngle) {
 				character->fixAngle();
 			}
 		}
 	}
+
+	return changedDirection;
 }
 
 void loadTileClips(SDL_Rect tilesClips[])
