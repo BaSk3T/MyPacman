@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <queue>
+#include <deque>
 #include <cstdlib>
 #include <ctime>
 #include <SDL.h>
@@ -41,6 +41,7 @@ short const CHARACTER_VELOCITY = 2;
 short const CHARACTER_FRAME_DELAY = 5;
 short const CHARACTER_INIT_X_POSITION = MAP_INIT_X_POSITION + (MAP_WIDTH - CHARACTER_WIDTH) / 2;
 short const CHARACTER_INIT_Y_POSITION = MAP_INIT_Y_POSITION + (MAP_HEIGHT - CHARACTER_HEIGHT) / 2 + 36;
+short const GHOST_VELOCITY = 2;
 short const FOOD_WIDTH = 6;
 short const FOOD_HEIGHT = 6;
 
@@ -60,7 +61,8 @@ int main(int argc, char ** argv)
 
 	std::vector<GameTileTexture> tiles;
 	std::vector<Food> food;
-	std::queue<SDL_Rect> trail;
+	std::deque<SDL_Rect> trail;
+	trail.push_front({ CHARACTER_INIT_X_POSITION, CHARACTER_INIT_Y_POSITION, CHARACTER_HEIGHT, CHARACTER_WIDTH });
 
 	SDL_Rect pinkyClips[4][2] = {
 		{ { 0, 0, 24, 24 },{ 0, 24, 24, 24 } },
@@ -68,7 +70,7 @@ int main(int argc, char ** argv)
 		{ { 48, 0, 24, 24 },{ 48, 24, 24, 24 } },
 		{ { 72, 0, 24, 24 },{ 72, 24, 24, 24 } } 
 	};
-
+	
 	loadMap("level.map", tiles, food);
 	loadTileClips(tilesClips);
 
@@ -101,6 +103,7 @@ int main(int argc, char ** argv)
 	Direction pinkyDirection = DOWN;
 
 	int shouldSwitchDirection;
+	bool foundTrail = false;
 
 	while (!hasQuit) {
 		while (SDL_PollEvent(&ev) != 0) {
@@ -136,20 +139,54 @@ int main(int argc, char ** argv)
 		changeCharacterDirectionIfPossible(requestedDirection, character, tiles, true);
 		moveCharacter(character, CHARACTER_VELOCITY);
 
-		shouldSwitchDirection = (std::rand() % 1000) % 237;
+		if (!checkCollision(character->getCollisionBox(), trail.front())) {
+			trail.push_front(character->getCollisionBox());
+		}
 
-		if (shouldSwitchDirection == 0) {
-			if (pinkyRequestedDirection % 2 == 0) {
-				pinkyRequestedDirection = (std::rand() % 2) == 1 ? UP : DOWN;
+		if (trail.size() >= 5) {
+			trail.pop_back();
+		}
+
+		foundTrail = false;
+
+		// 1 because if pinky is colliding with last 1 there will be collision with pacman ( thus pacman is dead )
+		for (Uint16 i = 1; i < trail.size(); i++) {
+
+			if (checkCollision(pinky->getCollisionBox(), trail[i])) {
+				if (trail[i - 1].x > trail[i].x) {
+					pinkyRequestedDirection = RIGHT;
+				}
+				else if (trail[i - 1].x < trail[i].x) {
+					pinkyRequestedDirection = LEFT;
+				}
+				else if (trail[i - 1].y < trail[i].y) {
+					pinkyRequestedDirection = UP;
+				}
+				else {
+					pinkyRequestedDirection = DOWN;
+				}
+
+				foundTrail = true;
+				break;
 			}
-			else {
-				pinkyRequestedDirection = (std::rand() % 2) == 1 ? LEFT : RIGHT;
+		}
+
+		if (!foundTrail) {
+			shouldSwitchDirection = (std::rand() % 1000) % 237;
+
+			if (shouldSwitchDirection == 0) {
+				if (pinkyRequestedDirection % 2 == 0) {
+					pinkyRequestedDirection = (std::rand() % 2) == 1 ? UP : DOWN;
+				}
+				else {
+					pinkyRequestedDirection = (std::rand() % 2) == 1 ? LEFT : RIGHT;
+				}
 			}
 		}
 
 		//pinky
 		bool pinkyHasChangedDirection = changeCharacterDirectionIfPossible(pinkyRequestedDirection, pinky, tiles, false);
-		moveCharacter(pinky, CHARACTER_VELOCITY);
+		moveCharacter(pinky, GHOST_VELOCITY);
 
 		if (pinkyHasChangedDirection) {
 			pinkyDirection = pinkyRequestedDirection;
