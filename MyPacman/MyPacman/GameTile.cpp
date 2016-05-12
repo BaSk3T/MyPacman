@@ -4,7 +4,7 @@ GameTile::GameTile()
 {
 }
 
-GameTile::GameTile(int x, int y, int width, int height, int tileType)
+GameTile::GameTile(double x, double y, int width, int height, int tileType)
 {
 	this->x = x;
 	this->y = y;
@@ -12,10 +12,7 @@ GameTile::GameTile(int x, int y, int width, int height, int tileType)
 	this->height = height;
 	this->type = tileType;
 
-	this->collisionBox.x = x;
-	this->collisionBox.y = y;
-	this->collisionBox.w = width;
-	this->collisionBox.h = height;
+	this->collisionBox = CollisionBox(x, y, width, height);
 }
 
 
@@ -23,22 +20,22 @@ GameTile::~GameTile()
 {
 }
 
-int GameTile::getX() const
+double GameTile::getX() const
 {
 	return this->x;
 }
 
-void GameTile::setX(int value)
+void GameTile::setX(double value)
 {
 	this->x = value;
 }
 
-int GameTile::getY() const
+double GameTile::getY() const
 {
 	return this->y;
 }
 
-void GameTile::setY(int value)
+void GameTile::setY(double value)
 {
 	this->y = value;
 }
@@ -58,7 +55,7 @@ int GameTile::getType() const
 	return this->type;
 }
 
-SDL_Rect GameTile::getCollisionBox() const
+CollisionBox GameTile::getCollisionBox() const
 {
 	return this->collisionBox;
 }

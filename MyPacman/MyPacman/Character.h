@@ -1,21 +1,22 @@
 #include "GameTexture.h"
+#include "CollisionBox.h"
 
 #pragma once
 class Character
 {
 public:
-	Character(int x, int y, int maxFrames, int frameDelay, int width, int height);
+	Character(double x, double y, int maxFrames, int frameDelay, int width, int height);
 	~Character();
 
 	void increaseFrame();
 	void shifCollisionBox();
 	void fixAngle();
 
-	int getX() const;
-	void setX(int value);
+	double getX() const;
+	void setX(double value);
 
-	int getY() const;
-	void setY(int value);
+	double getY() const;
+	void setY(double value);
 
 	bool getGoingRight() const;
 	void setGoingRight(bool value);
@@ -31,11 +32,11 @@ public:
 
 	int getFrame() const;
 
-	SDL_Rect getCollisionBox() const;
+	CollisionBox getCollisionBox() const;
 
 private:
-	int x;
-	int y;
+	double x;
+	double y;
 	int frame;
 	int maxFrames;
 	int frameDelay;
@@ -43,6 +44,6 @@ private:
 	bool goingRight;
 	bool goingUp;
 	bool movingHorizontal;
-	SDL_Rect collisionBox;
+	CollisionBox collisionBox;
 };
 

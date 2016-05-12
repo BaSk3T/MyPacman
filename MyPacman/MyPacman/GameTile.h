@@ -1,30 +1,31 @@
 #include "GameTexture.h"
+#include "CollisionBox.h"
 
 #pragma once
 class GameTile
 {
 public:
 	GameTile::GameTile();
-	GameTile(int x, int y, int width, int height, int tileType);
+	GameTile(double x, double y, int width, int height, int tileType);
 	~GameTile();
 
-	int getX() const;
-	void setX(int value);
+	double getX() const;
+	void setX(double value);
 
-	int getY() const;
-	void setY(int value);
+	double getY() const;
+	void setY(double value);
 
 	int getWidth() const;
 	int getHeight() const;
 	int getType() const;
-	SDL_Rect getCollisionBox() const;
+	CollisionBox getCollisionBox() const;
 
 private:
-	int x;
-	int y;
+	double x;
+	double y;
 	int width;
 	int height;
-	SDL_Rect collisionBox;
+	CollisionBox collisionBox;
 	int type;
 };
 

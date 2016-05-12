@@ -1,10 +1,11 @@
 #include "SDL.h"
+#include "CollisionBox.h"
 
 #pragma once
 class Food
 {
 public:
-	Food(int x, int y, int collisionBoxX, int collisionBoxY, int width, int height);
+	Food(int x, int y, double collisionBoxX, double collisionBoxY, int width, int height);
 	~Food();
 
 	int getX() const;
@@ -16,12 +17,12 @@ public:
 	bool getIsEaten() const;
 	void setIsEaten(bool value);
 
-	SDL_Rect getCollisionBox() const;
+	CollisionBox getCollisionBox() const;
 
 private:
 	int x;
 	int y;
 	bool isEaten;
-	SDL_Rect collisionBox;
+	CollisionBox collisionBox;
 };
 

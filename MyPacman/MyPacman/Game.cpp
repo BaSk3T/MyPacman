@@ -17,10 +17,10 @@ SDL_Renderer *initRenderer(SDL_Window *window);
 void loadMap(char *mapPath, std::vector<GameTile> &tiles, std::vector<Food> &food);
 void loadTileClips(SDL_Rect tilesClips[]);
 void loadCharacterClips(SDL_Rect characterClips[]);
-bool checkCollision(SDL_Rect a, SDL_Rect b);
+bool checkCollision(CollisionBox a, CollisionBox b);
 bool checkForCollisionWithTile(std::vector<GameTile> &tiles, Character *character, int xOffset, int yOffset);
 bool changeCharacterDirectionIfPossible(Direction requestedDirection, Character *character, std::vector<GameTile> &tiles, bool fixAngle);
-void moveCharacter(Character *character, const short velocity);
+void moveCharacter(Character *character, const double velocity);
 
 short const WINDOW_HEIGHT = 640;
 short const WINDOW_WIDTH = 860;
@@ -37,11 +37,11 @@ short const MAP_INIT_X_POSITION = (WINDOW_WIDTH - MAP_WIDTH) / 2;
 short const MAP_INIT_Y_POSITION = (WINDOW_HEIGHT - MAP_HEIGHT) / 2;
 short const CHARACTER_WIDTH = 24;
 short const CHARACTER_HEIGHT = 24;
-short const CHARACTER_VELOCITY = 2;
+double const CHARACTER_VELOCITY = 2;
 short const CHARACTER_FRAME_DELAY = 5;
 short const CHARACTER_INIT_X_POSITION = MAP_INIT_X_POSITION + (MAP_WIDTH - CHARACTER_WIDTH) / 2;
 short const CHARACTER_INIT_Y_POSITION = MAP_INIT_Y_POSITION + (MAP_HEIGHT - CHARACTER_HEIGHT) / 2 + 36;
-short const GHOST_VELOCITY = 2;
+double const GHOST_VELOCITY = 2;
 short const FOOD_WIDTH = 6;
 short const FOOD_HEIGHT = 6;
 
@@ -61,16 +61,16 @@ int main(int argc, char ** argv)
 
 	std::vector<GameTile> tiles;
 	std::vector<Food> food;
-	std::deque<SDL_Rect> trail;
-	trail.push_front({ CHARACTER_INIT_X_POSITION, CHARACTER_INIT_Y_POSITION, CHARACTER_HEIGHT, CHARACTER_WIDTH });
+	std::deque<CollisionBox> trail;
+	trail.push_front(CollisionBox(CHARACTER_INIT_X_POSITION, CHARACTER_INIT_Y_POSITION, CHARACTER_HEIGHT, CHARACTER_WIDTH));
 
 	SDL_Rect pinkyClips[4][2] = {
 		{ { 0, 0, 24, 24 },{ 0, 24, 24, 24 } },
 		{ { 24, 0, 24, 24 },{ 24, 24, 24, 24 } },
 		{ { 48, 0, 24, 24 },{ 48, 24, 24, 24 } },
-		{ { 72, 0, 24, 24 },{ 72, 24, 24, 24 } } 
+		{ { 72, 0, 24, 24 },{ 72, 24, 24, 24 } }
 	};
-	
+
 	loadMap("level.map", tiles, food);
 	loadTileClips(tilesClips);
 
@@ -207,16 +207,16 @@ int main(int argc, char ** argv)
 		}
 
 		// update frame of pinky
-		pinkyTexture->render(pinky->getX(), pinky->getY(), renderer, &pinkyClips[pinkyDirection][pinky->getFrame() / CHARACTER_FRAME_DELAY], pinky->getAngle());
+		pinkyTexture->render((int)pinky->getX(), (int)pinky->getY(), renderer, &pinkyClips[pinkyDirection][pinky->getFrame() / CHARACTER_FRAME_DELAY], pinky->getAngle());
 		pinky->increaseFrame();
 
 		// update frame of character
-		characterTexture->render(character->getX(), character->getY(), renderer, &characterClips[character->getFrame() / CHARACTER_FRAME_DELAY], character->getAngle());
+		characterTexture->render((int)character->getX(), (int)character->getY(), renderer, &characterClips[character->getFrame() / CHARACTER_FRAME_DELAY], character->getAngle());
 		character->increaseFrame();
 
 		// update displaying of tiles
 		for (unsigned int i = 0; i < tiles.size(); i++) {
-			tilesTexture->render(tiles[i].getX(), tiles[i].getY(), renderer, &tilesClips[tiles[i].getType()]);
+			tilesTexture->render((int)tiles[i].getX(), (int)tiles[i].getY(), renderer, &tilesClips[tiles[i].getType()]);
 
 			// check if character has colided with any tile
 			if (checkCollision(character->getCollisionBox(), tiles[i].getCollisionBox())) {
@@ -332,25 +332,25 @@ void loadMap(char *mapPath, std::vector<GameTile> &tiles, std::vector<Food> &foo
 	map.close();
 }
 
-bool checkCollision(SDL_Rect a, SDL_Rect b)
+bool checkCollision(CollisionBox a, CollisionBox b)
 {
 	//The sides of the rectangles
-	int leftA, leftB;
-	int rightA, rightB;
-	int topA, topB;
-	int bottomA, bottomB;
+	double leftA, leftB;
+	double rightA, rightB;
+	double topA, topB;
+	double bottomA, bottomB;
 
 	//Calculate the sides of rect A
 	leftA = a.x;
-	rightA = a.x + a.w;
+	rightA = a.x + a.width;
 	topA = a.y;
-	bottomA = a.y + a.h;
+	bottomA = a.y + a.height;
 
 	//Calculate the sides of rect B
 	leftB = b.x;
-	rightB = b.x + b.w;
+	rightB = b.x + b.width;
 	topB = b.y;
-	bottomB = b.y + b.h;
+	bottomB = b.y + b.height;
 
 	//If any of the sides from A are outside of B
 	if (bottomA <= topB)
@@ -378,7 +378,7 @@ bool checkCollision(SDL_Rect a, SDL_Rect b)
 
 bool checkForCollisionWithTile(std::vector<GameTile> &tiles, Character *character, int xOffset, int yOffset)
 {
-	SDL_Rect offsetRect = character->getCollisionBox();
+	CollisionBox offsetRect = character->getCollisionBox();
 	offsetRect.x += xOffset;
 	offsetRect.y += yOffset;
 
@@ -391,7 +391,7 @@ bool checkForCollisionWithTile(std::vector<GameTile> &tiles, Character *characte
 	return false;
 }
 
-void moveCharacter(Character *character, const short velocity)
+void moveCharacter(Character *character, const double velocity)
 {
 	if (character->getMovingHorizontal()) {
 		if (character->getGoingRight()) {
@@ -417,10 +417,10 @@ bool changeCharacterDirectionIfPossible(Direction requestedDirection, Character 
 {
 	bool changedDirection = false;
 
-	SDL_Rect characterCollisionBox = character->getCollisionBox();
+	CollisionBox characterCollisionBox = character->getCollisionBox();
 
 	if (requestedDirection == DOWN) {
-		if (!checkForCollisionWithTile(tiles, character, 0, characterCollisionBox.h)) {
+		if (!checkForCollisionWithTile(tiles, character, 0, characterCollisionBox.height)) {
 			character->setGoingUp(false);
 			character->setMovingHorizontal(false);
 			changedDirection = true;
@@ -431,7 +431,7 @@ bool changeCharacterDirectionIfPossible(Direction requestedDirection, Character 
 		}
 	}
 	else if (requestedDirection == UP) {
-		if (!checkForCollisionWithTile(tiles, character, 0, -characterCollisionBox.h)) {
+		if (!checkForCollisionWithTile(tiles, character, 0, -characterCollisionBox.height)) {
 			character->setGoingUp(true);
 			character->setMovingHorizontal(false);
 			changedDirection = true;
@@ -442,7 +442,7 @@ bool changeCharacterDirectionIfPossible(Direction requestedDirection, Character 
 		}
 	}
 	else if (requestedDirection == LEFT) {
-		if (!checkForCollisionWithTile(tiles, character, -characterCollisionBox.w, 0)) {
+		if (!checkForCollisionWithTile(tiles, character, -characterCollisionBox.width, 0)) {
 			character->setGoingRight(false);
 			character->setMovingHorizontal(true);
 			changedDirection = true;
@@ -453,7 +453,7 @@ bool changeCharacterDirectionIfPossible(Direction requestedDirection, Character 
 		}
 	}
 	else if (requestedDirection == RIGHT) {
-		if (!checkForCollisionWithTile(tiles, character, characterCollisionBox.w, 0)) {
+		if (!checkForCollisionWithTile(tiles, character, characterCollisionBox.width, 0)) {
 			character->setGoingRight(true);
 			character->setMovingHorizontal(true);
 			changedDirection = true;

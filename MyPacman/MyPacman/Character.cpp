@@ -1,10 +1,10 @@
 #include "Character.h"
 
-Character::Character(int x, int y, int maxFrames, int frameDelay, int width, int height)
+Character::Character(double x, double y, int maxFrames, int frameDelay, int width, int height)
 {
 	this->x = x;
 	this->y = y;
-	this->collisionBox = { x, y, width, height };
+	this->collisionBox = CollisionBox(x, y, width, height);
 	this->maxFrames = maxFrames;
 	this->frameDelay = frameDelay;
 	this->frame = 0;
@@ -50,22 +50,22 @@ void Character::shifCollisionBox()
 	this->collisionBox.y = this->y;
 }
 
-int Character::getX() const
+double Character::getX() const
 {
 	return this->x;
 }
 
-void Character::setX(int value)
+void Character::setX(double value)
 {
 	this->x = value;
 }
 
-int Character::getY() const
+double Character::getY() const
 {
 	return this->y;
 }
 
-void Character::setY(int value)
+void Character::setY(double value)
 {
 	this->y = value;
 }
@@ -100,7 +100,7 @@ void Character::setMovingHorizontal(bool value)
 	this->movingHorizontal = value;
 }
 
-SDL_Rect Character::getCollisionBox() const
+CollisionBox Character::getCollisionBox() const
 {
 	return this->collisionBox;
 }
