@@ -6,7 +6,7 @@
 #include <ctime>
 #include <SDL.h>
 #include <SDL_image.h>
-#include "GameTileTexture.h"
+#include "GameTile.h"
 #include "Character.h"
 #include "Food.h"
 #include "TileType.h"
@@ -14,12 +14,12 @@
 
 SDL_Window *init(char *title, int width, int height);
 SDL_Renderer *initRenderer(SDL_Window *window);
-void loadMap(char *mapPath, std::vector<GameTileTexture> &tiles, std::vector<Food> &food);
+void loadMap(char *mapPath, std::vector<GameTile> &tiles, std::vector<Food> &food);
 void loadTileClips(SDL_Rect tilesClips[]);
 void loadCharacterClips(SDL_Rect characterClips[]);
 bool checkCollision(SDL_Rect a, SDL_Rect b);
-bool checkForCollisionWithTile(std::vector<GameTileTexture> &tiles, Character *character, int xOffset, int yOffset);
-bool changeCharacterDirectionIfPossible(Direction requestedDirection, Character *character, std::vector<GameTileTexture> &tiles, bool fixAngle);
+bool checkForCollisionWithTile(std::vector<GameTile> &tiles, Character *character, int xOffset, int yOffset);
+bool changeCharacterDirectionIfPossible(Direction requestedDirection, Character *character, std::vector<GameTile> &tiles, bool fixAngle);
 void moveCharacter(Character *character, const short velocity);
 
 short const WINDOW_HEIGHT = 640;
@@ -59,7 +59,7 @@ int main(int argc, char ** argv)
 	int delay = 1000 / 60;
 	bool hasQuit = false;
 
-	std::vector<GameTileTexture> tiles;
+	std::vector<GameTile> tiles;
 	std::vector<Food> food;
 	std::deque<SDL_Rect> trail;
 	trail.push_front({ CHARACTER_INIT_X_POSITION, CHARACTER_INIT_Y_POSITION, CHARACTER_HEIGHT, CHARACTER_WIDTH });
@@ -139,17 +139,19 @@ int main(int argc, char ** argv)
 		changeCharacterDirectionIfPossible(requestedDirection, character, tiles, true);
 		moveCharacter(character, CHARACTER_VELOCITY);
 
+		// when pacman doesn't collide with last added trail add new trail
 		if (!checkCollision(character->getCollisionBox(), trail.front())) {
 			trail.push_front(character->getCollisionBox());
 		}
 
+		// remove oldest trail
 		if (trail.size() >= 5) {
 			trail.pop_back();
 		}
 
 		foundTrail = false;
 
-		// 1 because if pinky is colliding with last 1 there will be collision with pacman ( thus pacman is dead )
+		// starting from 1 because if pinky is colliding with last 1 there will be collision with pacman ( thus pacman is dead )
 		for (Uint16 i = 1; i < trail.size(); i++) {
 
 			if (checkCollision(pinky->getCollisionBox(), trail[i])) {
@@ -287,7 +289,7 @@ SDL_Renderer *initRenderer(SDL_Window *window)
 	return renderer;
 }
 
-void loadMap(char *mapPath, std::vector<GameTileTexture> &tiles, std::vector<Food> &food)
+void loadMap(char *mapPath, std::vector<GameTile> &tiles, std::vector<Food> &food)
 {
 	int x = MAP_INIT_X_POSITION;
 	int y = MAP_INIT_Y_POSITION;
@@ -311,7 +313,7 @@ void loadMap(char *mapPath, std::vector<GameTileTexture> &tiles, std::vector<Foo
 				std::cout << "Error loading map: Unrecognized tyle type!" << std::endl;
 			}
 			else if (1 <= tyleType && tyleType < NUMBER_OF_TILE_TYPES) {
-				tiles.push_back(GameTileTexture(x, y, TILE_WIDTH, TILE_HEIGHT, tyleType - 1));
+				tiles.push_back(GameTile(x, y, TILE_WIDTH, TILE_HEIGHT, tyleType - 1));
 			}
 			else if (tyleType - 1 == FOOD) {
 				food.push_back(Food(x, y, x + (TILE_WIDTH - FOOD_WIDTH) / 2, y + (TILE_HEIGHT - FOOD_HEIGHT) / 2, FOOD_WIDTH, FOOD_HEIGHT));
@@ -374,7 +376,7 @@ bool checkCollision(SDL_Rect a, SDL_Rect b)
 	return true;
 }
 
-bool checkForCollisionWithTile(std::vector<GameTileTexture> &tiles, Character *character, int xOffset, int yOffset)
+bool checkForCollisionWithTile(std::vector<GameTile> &tiles, Character *character, int xOffset, int yOffset)
 {
 	SDL_Rect offsetRect = character->getCollisionBox();
 	offsetRect.x += xOffset;
@@ -411,7 +413,7 @@ void moveCharacter(Character *character, const short velocity)
 	character->shifCollisionBox();
 }
 
-bool changeCharacterDirectionIfPossible(Direction requestedDirection, Character *character, std::vector<GameTileTexture> &tiles, bool fixAngle)
+bool changeCharacterDirectionIfPossible(Direction requestedDirection, Character *character, std::vector<GameTile> &tiles, bool fixAngle)
 {
 	bool changedDirection = false;
 

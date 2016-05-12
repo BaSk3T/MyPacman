@@ -122,14 +122,14 @@
     <ClCompile Include="Food.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameTexture.cpp" />
-    <ClCompile Include="GameTileTexture.cpp" />
+    <ClCompile Include="GameTile.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Character.h" />
     <ClInclude Include="Direction.h" />
     <ClInclude Include="Food.h" />
     <ClInclude Include="GameTexture.h" />
-    <ClInclude Include="GameTileTexture.h" />
+    <ClInclude Include="GameTile.h" />
     <ClInclude Include="TileType.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
