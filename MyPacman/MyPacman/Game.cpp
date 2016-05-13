@@ -21,6 +21,7 @@ bool checkCollision(CollisionBox a, CollisionBox b);
 bool checkForCollisionWithTile(std::vector<GameTile> &tiles, Character *character, int xOffset, int yOffset);
 bool changeCharacterDirectionIfPossible(Direction requestedDirection, Character *character, std::vector<GameTile> &tiles, bool fixAngle);
 void moveCharacter(Character *character, const double velocity);
+bool isInRangeOf(const CollisionBox a, const CollisionBox b, unsigned int range);
 
 short const WINDOW_HEIGHT = 640;
 short const WINDOW_WIDTH = 860;
@@ -206,6 +207,39 @@ int main(int argc, char ** argv)
 			}
 		}
 
+		// update displaying of tiles
+		for (unsigned int i = 0; i < tiles.size(); i++) {
+			tilesTexture->render((int)tiles[i].getX(), (int)tiles[i].getY(), renderer, &tilesClips[tiles[i].getType()]);
+
+			// check if tile is in range of pacman
+			if (isInRangeOf(character->getCollisionBox(), tiles[i].getCollisionBox(), 50)) {
+				// check if character has colided with tile
+				if (checkCollision(character->getCollisionBox(), tiles[i].getCollisionBox())) {
+					moveCharacter(character, -CHARACTER_VELOCITY);
+				}
+			}
+
+			// check if tile is in range of pinky
+			if (isInRangeOf(pinky->getCollisionBox(), tiles[i].getCollisionBox(), 50)) {
+				// check if pinky has colided with tile
+				if (checkCollision(pinky->getCollisionBox(), tiles[i].getCollisionBox())) {
+					moveCharacter(pinky, -CHARACTER_VELOCITY);
+
+					// if pinky has switched direction no need to check if it is colliding
+					if (pinkyHasChangedDirection) {
+						continue;
+					}
+
+					if (pinkyRequestedDirection % 2 == 0) {
+						pinkyRequestedDirection = (std::rand() % 2) == 1 ? UP : DOWN;
+					}
+					else {
+						pinkyRequestedDirection = (std::rand() % 2) == 1 ? LEFT : RIGHT;
+					}
+				}
+			}
+		}
+
 		// update frame of pinky
 		pinkyTexture->render((int)pinky->getX(), (int)pinky->getY(), renderer, &pinkyClips[pinkyDirection][pinky->getFrame() / CHARACTER_FRAME_DELAY], pinky->getAngle());
 		pinky->increaseFrame();
@@ -213,28 +247,6 @@ int main(int argc, char ** argv)
 		// update frame of character
 		characterTexture->render((int)character->getX(), (int)character->getY(), renderer, &characterClips[character->getFrame() / CHARACTER_FRAME_DELAY], character->getAngle());
 		character->increaseFrame();
-
-		// update displaying of tiles
-		for (unsigned int i = 0; i < tiles.size(); i++) {
-			tilesTexture->render((int)tiles[i].getX(), (int)tiles[i].getY(), renderer, &tilesClips[tiles[i].getType()]);
-
-			// check if character has colided with any tile
-			if (checkCollision(character->getCollisionBox(), tiles[i].getCollisionBox())) {
-				moveCharacter(character, -CHARACTER_VELOCITY);
-			}
-
-			// check if pinky has colided with any tile
-			if (checkCollision(pinky->getCollisionBox(), tiles[i].getCollisionBox())) {
-				moveCharacter(pinky, -CHARACTER_VELOCITY);
-
-				if (pinkyRequestedDirection % 2 == 0) {
-					pinkyRequestedDirection = (std::rand() % 2) == 1 ? UP : DOWN;
-				}
-				else {
-					pinkyRequestedDirection = (std::rand() % 2) == 1 ? LEFT : RIGHT;
-				}
-			}
-		}
 
 		SDL_RenderPresent(renderer);
 	}
@@ -465,6 +477,20 @@ bool changeCharacterDirectionIfPossible(Direction requestedDirection, Character 
 	}
 
 	return changedDirection;
+}
+
+bool isInRangeOf(const CollisionBox a, const CollisionBox b, unsigned int range)
+{
+	int differenceInX = (int)std::abs(a.x - b.x);
+	int differenceInY = (int)std::abs(a.y - b.y);
+
+	bool isInRange = false;
+
+	if (differenceInX <= range && differenceInY <= range) {
+		isInRange = true;
+	}
+
+	return isInRange;
 }
 
 void loadTileClips(SDL_Rect tilesClips[])
