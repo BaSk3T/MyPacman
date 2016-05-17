@@ -219,16 +219,16 @@ int main(int argc, char ** argv)
 				}
 			}
 
+			// if pinky has switched direction no need to check if it is colliding
+			if (pinkyHasChangedDirection) {
+				continue;
+			}
+			
 			// check if tile is in range of pinky
 			if (isInRangeOf(pinky->getCollisionBox(), tiles[i].getCollisionBox(), 50)) {
 				// check if pinky has colided with tile
 				if (checkCollision(pinky->getCollisionBox(), tiles[i].getCollisionBox())) {
 					moveCharacter(pinky, -CHARACTER_VELOCITY);
-
-					// if pinky has switched direction no need to check if it is colliding
-					if (pinkyHasChangedDirection) {
-						continue;
-					}
 
 					if (pinkyRequestedDirection % 2 == 0) {
 						pinkyRequestedDirection = (std::rand() % 2) == 1 ? UP : DOWN;
@@ -395,6 +395,10 @@ bool checkForCollisionWithTile(std::vector<GameTile> &tiles, Character *characte
 	offsetRect.y += yOffset;
 
 	for (unsigned int i = 0; i < tiles.size(); i++) {
+		if (!isInRangeOf(offsetRect, tiles[i].getCollisionBox(), 50)) {
+			continue;
+		}
+
 		if (checkCollision(offsetRect, tiles[i].getCollisionBox())) {
 			return true;
 		}
