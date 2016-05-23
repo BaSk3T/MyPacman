@@ -72,15 +72,15 @@ int main(int argc, char ** argv)
 		{ { 72, 0, 24, 24 },{ 72, 24, 24, 24 } }
 	};
 
-	loadMap("level.map", tiles, food);
+	loadMap("Levels/level.map", tiles, food);
 	loadTileClips(tilesClips);
 
 	GameTexture *tilesTexture = new GameTexture();
-	tilesTexture->loadFromFile("tiles.png", renderer);
+	tilesTexture->loadFromFile("Sprites/Common/tiles.png", renderer);
 
 	loadCharacterClips(characterClips);
 
-	Character *character = new Character(
+	Character *pacman = new Character(
 		CHARACTER_INIT_X_POSITION,
 		CHARACTER_INIT_Y_POSITION,
 		NUMBER_OF_CHARACTER_SPRITES,
@@ -91,13 +91,13 @@ int main(int argc, char ** argv)
 	Character *pinky = new Character(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - 72, 2, CHARACTER_FRAME_DELAY, CHARACTER_WIDTH, CHARACTER_HEIGHT);
 
 	GameTexture *pinkyTexture = new GameTexture();
-	pinkyTexture->loadFromFile("pinky-sprite.png", renderer);
+	pinkyTexture->loadFromFile("Sprites/Ghosts/pinky-sprite.png", renderer);
 
-	GameTexture *characterTexture = new GameTexture();
-	characterTexture->loadFromFile("pacman-sprite.png", renderer);
+	GameTexture *pacmanTexture = new GameTexture();
+	pacmanTexture->loadFromFile("Sprites/Pacman/pacman-sprite.png", renderer);
 
 	GameTexture *foodTexture = new GameTexture();
-	foodTexture->loadFromFile("food-sprite.png", renderer);
+	foodTexture->loadFromFile("Sprites/Common/food-sprite.png", renderer);
 
 	Direction requestedDirection = RIGHT;
 	Direction pinkyRequestedDirection = DOWN;
@@ -136,13 +136,13 @@ int main(int argc, char ** argv)
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
 		SDL_RenderClear(renderer);
 
-		// character 
-		changeCharacterDirectionIfPossible(requestedDirection, character, tiles, true);
-		moveCharacter(character, CHARACTER_VELOCITY);
+		// pacman 
+		changeCharacterDirectionIfPossible(requestedDirection, pacman, tiles, true);
+		moveCharacter(pacman, CHARACTER_VELOCITY);
 
 		// when pacman doesn't collide with last added trail add new trail
-		if (!checkCollision(character->getCollisionBox(), trail.front())) {
-			trail.push_front(character->getCollisionBox());
+		if (!checkCollision(pacman->getCollisionBox(), trail.front())) {
+			trail.push_front(pacman->getCollisionBox());
 		}
 
 		// remove oldest trail
@@ -202,7 +202,7 @@ int main(int argc, char ** argv)
 
 			foodTexture->render(food[i].getX(), food[i].getY(), renderer);
 
-			if (checkCollision(character->getCollisionBox(), food[i].getCollisionBox())) {
+			if (checkCollision(pacman->getCollisionBox(), food[i].getCollisionBox())) {
 				food[i].setIsEaten(true);
 			}
 		}
@@ -212,10 +212,10 @@ int main(int argc, char ** argv)
 			tilesTexture->render((int)tiles[i].getX(), (int)tiles[i].getY(), renderer, &tilesClips[tiles[i].getType()]);
 
 			// check if tile is in range of pacman
-			if (isInRangeOf(character->getCollisionBox(), tiles[i].getCollisionBox(), 50)) {
+			if (isInRangeOf(pacman->getCollisionBox(), tiles[i].getCollisionBox(), 50)) {
 				// check if character has colided with tile
-				if (checkCollision(character->getCollisionBox(), tiles[i].getCollisionBox())) {
-					moveCharacter(character, -CHARACTER_VELOCITY);
+				if (checkCollision(pacman->getCollisionBox(), tiles[i].getCollisionBox())) {
+					moveCharacter(pacman, -CHARACTER_VELOCITY);
 				}
 			}
 
@@ -245,8 +245,8 @@ int main(int argc, char ** argv)
 		pinky->increaseFrame();
 
 		// update frame of character
-		characterTexture->render((int)character->getX(), (int)character->getY(), renderer, &characterClips[character->getFrame() / CHARACTER_FRAME_DELAY], character->getAngle());
-		character->increaseFrame();
+		pacmanTexture->render((int)pacman->getX(), (int)pacman->getY(), renderer, &characterClips[pacman->getFrame() / CHARACTER_FRAME_DELAY], pacman->getAngle());
+		pacman->increaseFrame();
 
 		SDL_RenderPresent(renderer);
 	}
@@ -255,10 +255,10 @@ int main(int argc, char ** argv)
 	SDL_DestroyWindow(window);
 
 	delete tilesTexture;
-	delete characterTexture;
+	delete pacmanTexture;
 	delete pinkyTexture;
 	delete foodTexture;
-	delete character;
+	delete pacman;
 	delete pinky;
 
 	IMG_Quit();
@@ -440,10 +440,6 @@ bool changeCharacterDirectionIfPossible(Direction requestedDirection, Character 
 			character->setGoingUp(false);
 			character->setMovingHorizontal(false);
 			changedDirection = true;
-
-			if (fixAngle) {
-				character->fixAngle();
-			}
 		}
 	}
 	else if (requestedDirection == UP) {
@@ -451,10 +447,6 @@ bool changeCharacterDirectionIfPossible(Direction requestedDirection, Character 
 			character->setGoingUp(true);
 			character->setMovingHorizontal(false);
 			changedDirection = true;
-
-			if (fixAngle) {
-				character->fixAngle();
-			}
 		}
 	}
 	else if (requestedDirection == LEFT) {
@@ -462,10 +454,6 @@ bool changeCharacterDirectionIfPossible(Direction requestedDirection, Character 
 			character->setGoingRight(false);
 			character->setMovingHorizontal(true);
 			changedDirection = true;
-
-			if (fixAngle) {
-				character->fixAngle();
-			}
 		}
 	}
 	else if (requestedDirection == RIGHT) {
@@ -473,11 +461,11 @@ bool changeCharacterDirectionIfPossible(Direction requestedDirection, Character 
 			character->setGoingRight(true);
 			character->setMovingHorizontal(true);
 			changedDirection = true;
-
-			if (fixAngle) {
-				character->fixAngle();
-			}
 		}
+	}
+
+	if (fixAngle) {
+		character->fixAngle();
 	}
 
 	return changedDirection;
@@ -485,8 +473,8 @@ bool changeCharacterDirectionIfPossible(Direction requestedDirection, Character 
 
 bool isInRangeOf(const CollisionBox a, const CollisionBox b, unsigned int range)
 {
-	int differenceInX = (int)std::abs(a.x - b.x);
-	int differenceInY = (int)std::abs(a.y - b.y);
+	unsigned int differenceInX = (int)std::abs(a.x - b.x);
+	unsigned int differenceInY = (int)std::abs(a.y - b.y);
 
 	bool isInRange = false;
 
