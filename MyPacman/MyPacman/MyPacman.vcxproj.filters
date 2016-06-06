@@ -25,6 +25,12 @@
     <Filter Include="Header Files\Game">
       <UniqueIdentifier>{cd91f98d-0a32-4053-a003-450a64dbf5f4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Engine\Core">
+      <UniqueIdentifier>{46378034-accd-4577-ad24-840f29ae773a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Engine\Core">
+      <UniqueIdentifier>{21207a92-52cd-49f6-8d48-80caf9d65234}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp">
@@ -44,6 +50,15 @@
     </ClCompile>
     <ClCompile Include="Food.cpp">
       <Filter>Source Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="System.cpp">
+      <Filter>Source Files\Engine\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="SystemGraphics.cpp">
+      <Filter>Source Files\Engine\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Rectangle.cpp">
+      <Filter>Source Files\Engine\Core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -67,6 +82,15 @@
     </ClInclude>
     <ClInclude Include="Food.h">
       <Filter>Header Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="System.h">
+      <Filter>Header Files\Engine\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="SystemGraphics.h">
+      <Filter>Header Files\Engine\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Rectangle.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

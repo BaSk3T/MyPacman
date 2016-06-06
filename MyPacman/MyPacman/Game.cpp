@@ -11,12 +11,14 @@
 #include "Food.h"
 #include "TileType.h"
 #include "Direction.h"
+#include "System.h"
+#include "SystemGraphics.h"
 
 SDL_Window *init(char *title, int width, int height);
 SDL_Renderer *initRenderer(SDL_Window *window);
 void loadMap(char *mapPath, std::vector<GameTile> &tiles, std::vector<Food> &food);
-void loadTileClips(SDL_Rect tilesClips[]);
-void loadCharacterClips(SDL_Rect characterClips[]);
+void loadTileClips(Rectangle tilesClips[]);
+void loadCharacterClips(Rectangle characterClips[]);
 bool checkCollision(CollisionBox a, CollisionBox b);
 bool checkForCollisionWithTile(std::vector<GameTile> &tiles, Character *character, int xOffset, int yOffset);
 bool changeCharacterDirectionIfPossible(Direction requestedDirection, Character *character, std::vector<GameTile> &tiles, bool fixAngle);
@@ -46,15 +48,18 @@ double const GHOST_VELOCITY = 2;
 short const FOOD_WIDTH = 6;
 short const FOOD_HEIGHT = 6;
 
-SDL_Rect tilesClips[NUMBER_OF_TILE_TYPES];
-SDL_Rect characterClips[NUMBER_OF_CHARACTER_SPRITES];
+Rectangle tilesClips[NUMBER_OF_TILE_TYPES];
+Rectangle characterClips[NUMBER_OF_CHARACTER_SPRITES];
 
 int main(int argc, char ** argv)
 {
 	srand(time(NULL));
 
-	SDL_Window *window = init("MyPacman", WINDOW_WIDTH, WINDOW_HEIGHT);
-	SDL_Renderer *renderer = initRenderer(window);
+	System *system = new System();
+	SDL_Window *window = system->createWindow("MyPacman", WINDOW_WIDTH, WINDOW_HEIGHT);
+	
+	SystemGraphics *systemGraphics = new SystemGraphics();
+	systemGraphics->initRenderer(window);
 
 	SDL_Event ev;
 	int delay = 1000 / 60;
@@ -65,7 +70,7 @@ int main(int argc, char ** argv)
 	std::deque<CollisionBox> trail;
 	trail.push_front(CollisionBox(CHARACTER_INIT_X_POSITION, CHARACTER_INIT_Y_POSITION, CHARACTER_HEIGHT, CHARACTER_WIDTH));
 
-	SDL_Rect pinkyClips[4][2] = {
+	Rectangle pinkyClips[4][2] = {
 		{ { 0, 0, 24, 24 },{ 0, 24, 24, 24 } },
 		{ { 24, 0, 24, 24 },{ 24, 24, 24, 24 } },
 		{ { 48, 0, 24, 24 },{ 48, 24, 24, 24 } },
@@ -75,8 +80,7 @@ int main(int argc, char ** argv)
 	loadMap("Levels/level.map", tiles, food);
 	loadTileClips(tilesClips);
 
-	GameTexture *tilesTexture = new GameTexture();
-	tilesTexture->loadFromFile("Sprites/Common/tiles.png", renderer);
+	systemGraphics->createSprite("tiles", "Sprites/Common/tiles.png");
 
 	loadCharacterClips(characterClips);
 
@@ -90,14 +94,9 @@ int main(int argc, char ** argv)
 
 	Character *pinky = new Character(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - 72, 2, CHARACTER_FRAME_DELAY, CHARACTER_WIDTH, CHARACTER_HEIGHT);
 
-	GameTexture *pinkyTexture = new GameTexture();
-	pinkyTexture->loadFromFile("Sprites/Ghosts/pinky-sprite.png", renderer);
-
-	GameTexture *pacmanTexture = new GameTexture();
-	pacmanTexture->loadFromFile("Sprites/Pacman/pacman-sprite.png", renderer);
-
-	GameTexture *foodTexture = new GameTexture();
-	foodTexture->loadFromFile("Sprites/Common/food-sprite.png", renderer);
+	systemGraphics->createSprite("pinky", "Sprites/Ghosts/pinky-sprite.png");
+	systemGraphics->createSprite("pacman", "Sprites/Pacman/pacman-sprite.png");
+	systemGraphics->createSprite("food", "Sprites/Common/food-sprite.png");
 
 	Direction requestedDirection = RIGHT;
 	Direction pinkyRequestedDirection = DOWN;
@@ -133,8 +132,8 @@ int main(int argc, char ** argv)
 
 		SDL_Delay(delay);
 
-		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
-		SDL_RenderClear(renderer);
+		systemGraphics->setDrawColor(0, 0, 0, 0);
+		systemGraphics->clear();
 
 		// pacman 
 		changeCharacterDirectionIfPossible(requestedDirection, pacman, tiles, true);
@@ -200,7 +199,7 @@ int main(int argc, char ** argv)
 				continue;
 			}
 
-			foodTexture->render(food[i].getX(), food[i].getY(), renderer);
+			systemGraphics->draw("food", food[i].getX(), food[i].getY());
 
 			if (checkCollision(pacman->getCollisionBox(), food[i].getCollisionBox())) {
 				food[i].setIsEaten(true);
@@ -209,7 +208,7 @@ int main(int argc, char ** argv)
 
 		// update displaying of tiles
 		for (unsigned int i = 0; i < tiles.size(); i++) {
-			tilesTexture->render((int)tiles[i].getX(), (int)tiles[i].getY(), renderer, &tilesClips[tiles[i].getType()]);
+			systemGraphics->draw("tiles", (int)tiles[i].getX(), (int)tiles[i].getY(), tilesClips[tiles[i].getType()]);
 
 			// check if tile is in range of pacman
 			if (isInRangeOf(pacman->getCollisionBox(), tiles[i].getCollisionBox(), 50)) {
@@ -241,28 +240,23 @@ int main(int argc, char ** argv)
 		}
 
 		// update frame of pinky
-		pinkyTexture->render((int)pinky->getX(), (int)pinky->getY(), renderer, &pinkyClips[pinkyDirection][pinky->getFrame() / CHARACTER_FRAME_DELAY], pinky->getAngle());
+		systemGraphics->draw("pinky", (int)pinky->getX(), (int)pinky->getY(), pinkyClips[pinkyDirection][pinky->getFrame() / CHARACTER_FRAME_DELAY], pinky->getAngle());
 		pinky->increaseFrame();
 
 		// update frame of character
-		pacmanTexture->render((int)pacman->getX(), (int)pacman->getY(), renderer, &characterClips[pacman->getFrame() / CHARACTER_FRAME_DELAY], pacman->getAngle());
+		systemGraphics->draw("pacman", (int)pacman->getX(), (int)pacman->getY(), characterClips[pacman->getFrame() / CHARACTER_FRAME_DELAY], pacman->getAngle());
 		pacman->increaseFrame();
 
-		SDL_RenderPresent(renderer);
+		systemGraphics->present();
 	}
 
-	//SDL_DestroyRenderer(renderer);
-	SDL_DestroyWindow(window);
+	system->closeWindow(window);
 
-	delete tilesTexture;
-	delete pacmanTexture;
-	delete pinkyTexture;
-	delete foodTexture;
 	delete pacman;
 	delete pinky;
 
-	IMG_Quit();
-	SDL_Quit();
+	delete systemGraphics;
+	delete system;
 
 	return 0;
 }
@@ -485,93 +479,93 @@ bool isInRangeOf(const CollisionBox a, const CollisionBox b, unsigned int range)
 	return isInRange;
 }
 
-void loadTileClips(SDL_Rect tilesClips[])
+void loadTileClips(Rectangle tilesClips[])
 {
 	tilesClips[LEFT_TILE].x = 0;
 	tilesClips[LEFT_TILE].y = 0;
-	tilesClips[LEFT_TILE].w = TILE_WIDTH;
-	tilesClips[LEFT_TILE].h = TILE_HEIGHT;
+	tilesClips[LEFT_TILE].width = TILE_WIDTH;
+	tilesClips[LEFT_TILE].height = TILE_HEIGHT;
 
 	tilesClips[UP_TILE].x = 24;
 	tilesClips[UP_TILE].y = 0;
-	tilesClips[UP_TILE].w = TILE_WIDTH;
-	tilesClips[UP_TILE].h = TILE_HEIGHT;
+	tilesClips[UP_TILE].width = TILE_WIDTH;
+	tilesClips[UP_TILE].height = TILE_HEIGHT;
 
 	tilesClips[RIGHT_TILE].x = 48;
 	tilesClips[RIGHT_TILE].y = 0;
-	tilesClips[RIGHT_TILE].w = TILE_WIDTH;
-	tilesClips[RIGHT_TILE].h = TILE_HEIGHT;
+	tilesClips[RIGHT_TILE].width = TILE_WIDTH;
+	tilesClips[RIGHT_TILE].height = TILE_HEIGHT;
 
 	tilesClips[DOWN_TILE].x = 72;
 	tilesClips[DOWN_TILE].y = 0;
-	tilesClips[DOWN_TILE].w = TILE_WIDTH;
-	tilesClips[DOWN_TILE].h = TILE_HEIGHT;
+	tilesClips[DOWN_TILE].width = TILE_WIDTH;
+	tilesClips[DOWN_TILE].height = TILE_HEIGHT;
 
 	tilesClips[VERTICAL_PIPE_TILE].x = 96;
 	tilesClips[VERTICAL_PIPE_TILE].y = 0;
-	tilesClips[VERTICAL_PIPE_TILE].w = TILE_WIDTH;
-	tilesClips[VERTICAL_PIPE_TILE].h = TILE_HEIGHT;
+	tilesClips[VERTICAL_PIPE_TILE].width = TILE_WIDTH;
+	tilesClips[VERTICAL_PIPE_TILE].height = TILE_HEIGHT;
 
 	tilesClips[HORIZONTAL_PIPE_TILE].x = 120;
 	tilesClips[HORIZONTAL_PIPE_TILE].y = 0;
-	tilesClips[HORIZONTAL_PIPE_TILE].w = TILE_WIDTH;
-	tilesClips[HORIZONTAL_PIPE_TILE].h = TILE_HEIGHT;
+	tilesClips[HORIZONTAL_PIPE_TILE].width = TILE_WIDTH;
+	tilesClips[HORIZONTAL_PIPE_TILE].height = TILE_HEIGHT;
 
 	tilesClips[TOP_TILE].x = 120;
 	tilesClips[TOP_TILE].y = 0;
-	tilesClips[TOP_TILE].w = TILE_WIDTH;
-	tilesClips[TOP_TILE].h = TILE_HEIGHT - 2;
+	tilesClips[TOP_TILE].width = TILE_WIDTH;
+	tilesClips[TOP_TILE].height = TILE_HEIGHT - 2;
 
 	tilesClips[BOT_TILE].x = 96;
 	tilesClips[BOT_TILE].y = 24;
-	tilesClips[BOT_TILE].w = TILE_WIDTH;
-	tilesClips[BOT_TILE].h = TILE_HEIGHT;
+	tilesClips[BOT_TILE].width = TILE_WIDTH;
+	tilesClips[BOT_TILE].height = TILE_HEIGHT;
 
 	tilesClips[TOP_LEFT_TILE].x = 0;
 	tilesClips[TOP_LEFT_TILE].y = 24;
-	tilesClips[TOP_LEFT_TILE].w = TILE_WIDTH;
-	tilesClips[TOP_LEFT_TILE].h = TILE_HEIGHT;
+	tilesClips[TOP_LEFT_TILE].width = TILE_WIDTH;
+	tilesClips[TOP_LEFT_TILE].height = TILE_HEIGHT;
 
 	tilesClips[TOP_RIGHT_TILE].x = 24;
 	tilesClips[TOP_RIGHT_TILE].y = 24;
-	tilesClips[TOP_RIGHT_TILE].w = TILE_WIDTH;
-	tilesClips[TOP_RIGHT_TILE].h = TILE_HEIGHT;
+	tilesClips[TOP_RIGHT_TILE].width = TILE_WIDTH;
+	tilesClips[TOP_RIGHT_TILE].height = TILE_HEIGHT;
 
 	tilesClips[BOT_LEFT_TILE].x = 48;
 	tilesClips[BOT_LEFT_TILE].y = 24;
-	tilesClips[BOT_LEFT_TILE].w = TILE_WIDTH;
-	tilesClips[BOT_LEFT_TILE].h = TILE_HEIGHT;
+	tilesClips[BOT_LEFT_TILE].width = TILE_WIDTH;
+	tilesClips[BOT_LEFT_TILE].height = TILE_HEIGHT;
 
 	tilesClips[BOT_RIGHT_TILE].x = 72;
 	tilesClips[BOT_RIGHT_TILE].y = 24;
-	tilesClips[BOT_RIGHT_TILE].w = TILE_WIDTH;
-	tilesClips[BOT_RIGHT_TILE].h = TILE_HEIGHT;
+	tilesClips[BOT_RIGHT_TILE].width = TILE_WIDTH;
+	tilesClips[BOT_RIGHT_TILE].height = TILE_HEIGHT;
 
 	tilesClips[RIGHT_BORDER_TILE].x = 120;
 	tilesClips[RIGHT_BORDER_TILE].y = 24;
-	tilesClips[RIGHT_BORDER_TILE].w = TILE_WIDTH;
-	tilesClips[RIGHT_BORDER_TILE].h = TILE_HEIGHT;
+	tilesClips[RIGHT_BORDER_TILE].width = TILE_WIDTH;
+	tilesClips[RIGHT_BORDER_TILE].height = TILE_HEIGHT;
 
 	tilesClips[LEFT_BORDER_TILE].x = 96;
 	tilesClips[LEFT_BORDER_TILE].y = 0;
-	tilesClips[LEFT_BORDER_TILE].w = TILE_WIDTH - 2;
-	tilesClips[LEFT_BORDER_TILE].h = TILE_HEIGHT;
+	tilesClips[LEFT_BORDER_TILE].width = TILE_WIDTH - 2;
+	tilesClips[LEFT_BORDER_TILE].height = TILE_HEIGHT;
 }
 
-void loadCharacterClips(SDL_Rect characterClips[])
+void loadCharacterClips(Rectangle characterClips[])
 {
 	characterClips[0].x = 0;
 	characterClips[0].y = 0;
-	characterClips[0].w = CHARACTER_WIDTH;
-	characterClips[0].h = CHARACTER_HEIGHT;
+	characterClips[0].width = CHARACTER_WIDTH;
+	characterClips[0].height = CHARACTER_HEIGHT;
 
 	characterClips[1].x = 24;
 	characterClips[1].y = 0;
-	characterClips[1].w = CHARACTER_WIDTH;
-	characterClips[1].h = CHARACTER_HEIGHT;
+	characterClips[1].width = CHARACTER_WIDTH;
+	characterClips[1].height = CHARACTER_HEIGHT;
 
 	characterClips[2].x = 48;
 	characterClips[2].y = 0;
-	characterClips[2].w = CHARACTER_WIDTH;
-	characterClips[2].h = CHARACTER_HEIGHT;
+	characterClips[2].width = CHARACTER_WIDTH;
+	characterClips[2].height = CHARACTER_HEIGHT;
 }

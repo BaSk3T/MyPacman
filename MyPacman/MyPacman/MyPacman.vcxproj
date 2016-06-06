@@ -124,6 +124,9 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameTexture.cpp" />
     <ClCompile Include="GameTile.cpp" />
+    <ClCompile Include="Rectangle.cpp" />
+    <ClCompile Include="System.cpp" />
+    <ClCompile Include="SystemGraphics.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Character.h" />
@@ -132,6 +135,9 @@
     <ClInclude Include="Food.h" />
     <ClInclude Include="GameTexture.h" />
     <ClInclude Include="GameTile.h" />
+    <ClInclude Include="Rectangle.h" />
+    <ClInclude Include="System.h" />
+    <ClInclude Include="SystemGraphics.h" />
     <ClInclude Include="TileType.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

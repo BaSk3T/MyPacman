@@ -1,7 +1,5 @@
 #include "GameTexture.h"
 
-
-
 GameTexture::GameTexture()
 {
 }
@@ -51,18 +49,6 @@ bool GameTexture::loadFromFile(char *path, SDL_Renderer *renderer)
 	}
 
 	return newTexture != NULL;
-}
-
-void GameTexture::render(int x, int y, SDL_Renderer *renderer, SDL_Rect *clipRect, double angle, SDL_Point *center, SDL_RendererFlip flip)
-{
-	SDL_Rect rect = { x, y, this->width, this->height };
-
-	if (clipRect != NULL) {
-		rect.w = clipRect->w;
-		rect.h = clipRect->h;
-	}
-
-	SDL_RenderCopyEx(renderer, this->texture, clipRect, &rect, angle, center, flip);
 }
 
 int GameTexture::getHeight() const
