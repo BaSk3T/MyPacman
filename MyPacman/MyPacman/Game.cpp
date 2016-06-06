@@ -4,8 +4,6 @@
 #include <deque>
 #include <cstdlib>
 #include <ctime>
-#include <SDL.h>
-#include <SDL_image.h>
 #include "GameTile.h"
 #include "Character.h"
 #include "Food.h"
@@ -14,8 +12,6 @@
 #include "System.h"
 #include "SystemGraphics.h"
 
-SDL_Window *init(char *title, int width, int height);
-SDL_Renderer *initRenderer(SDL_Window *window);
 void loadMap(char *mapPath, std::vector<GameTile> &tiles, std::vector<Food> &food);
 void loadTileClips(Rectangle tilesClips[]);
 void loadCharacterClips(Rectangle characterClips[]);
@@ -259,40 +255,6 @@ int main(int argc, char ** argv)
 	delete system;
 
 	return 0;
-}
-
-SDL_Window *init(char *title, int width, int height)
-{
-	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-		std::cout << "SDL could not initialize! Error: " << SDL_GetError() << std::endl;
-	}
-
-	SDL_Window *window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN);
-
-	if (window == NULL) {
-		std::cout << "Window could not initialize! Error: " << SDL_GetError() << std::endl;
-	}
-
-	if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG))
-	{
-		std::cout << "SDL_image could not initialize! Error: " << IMG_GetError() << std::endl;
-	}
-
-	return window;
-}
-
-SDL_Renderer *initRenderer(SDL_Window *window)
-{
-	SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-
-	if (renderer == NULL) {
-		std::cout << "SDL_Renderer couldn't not initialize! Error: " << SDL_GetError() << std::endl;
-	}
-	else {
-		SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-	}
-
-	return renderer;
 }
 
 void loadMap(char *mapPath, std::vector<GameTile> &tiles, std::vector<Food> &food)

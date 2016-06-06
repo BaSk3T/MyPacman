@@ -1,6 +1,6 @@
 ﻿  Game.cpp
-c:\users\bask3t\desktop\mypacman\mypacman\mypacman\game.cpp(56): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+c:\users\bask3t\desktop\mypacman\mypacman\mypacman\game.cpp(52): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+c:\users\bask3t\desktop\mypacman\mypacman\mypacman\game.cpp(239): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
 c:\users\bask3t\desktop\mypacman\mypacman\mypacman\game.cpp(243): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-c:\users\bask3t\desktop\mypacman\mypacman\mypacman\game.cpp(247): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
   MyPacman.vcxproj -> C:\Users\BaSk3T\Desktop\MyPacman\MyPacman\Debug\MyPacman.exe
   MyPacman.vcxproj -> C:\Users\BaSk3T\Desktop\MyPacman\MyPacman\Debug\MyPacman.pdb (Partial PDB)
