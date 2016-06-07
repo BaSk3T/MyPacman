@@ -10,6 +10,7 @@ public:
 
 	SDL_Window *createWindow(char *title, int width, int height);
 	void closeWindow(SDL_Window *window);
+	void delay(int milliseconds);
 
 private:
 	void init();

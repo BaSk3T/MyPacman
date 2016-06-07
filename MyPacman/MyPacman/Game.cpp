@@ -8,16 +8,16 @@
 #include "Character.h"
 #include "Food.h"
 #include "TileType.h"
-#include "Direction.h"
 #include "System.h"
 #include "SystemGraphics.h"
+#include "SystemInput.h"
 
 void loadMap(char *mapPath, std::vector<GameTile> &tiles, std::vector<Food> &food);
 void loadTileClips(Rectangle tilesClips[]);
 void loadCharacterClips(Rectangle characterClips[]);
 bool checkCollision(CollisionBox a, CollisionBox b);
 bool checkForCollisionWithTile(std::vector<GameTile> &tiles, Character *character, int xOffset, int yOffset);
-bool changeCharacterDirectionIfPossible(Direction requestedDirection, Character *character, std::vector<GameTile> &tiles, bool fixAngle);
+bool changeCharacterDirectionIfPossible(Command requestedDirection, Character *character, std::vector<GameTile> &tiles, bool fixAngle);
 void moveCharacter(Character *character, const double velocity);
 bool isInRangeOf(const CollisionBox a, const CollisionBox b, unsigned int range);
 
@@ -52,12 +52,12 @@ int main(int argc, char ** argv)
 	srand(time(NULL));
 
 	System *system = new System();
-	SDL_Window *window = system->createWindow("MyPacman", WINDOW_WIDTH, WINDOW_HEIGHT);
-	
 	SystemGraphics *systemGraphics = new SystemGraphics();
+	SystemInput *systemInput = new SystemInput();
+
+	SDL_Window *window = system->createWindow("MyPacman", WINDOW_WIDTH, WINDOW_HEIGHT);
 	systemGraphics->initRenderer(window);
 
-	SDL_Event ev;
 	int delay = 1000 / 60;
 	bool hasQuit = false;
 
@@ -94,39 +94,37 @@ int main(int argc, char ** argv)
 	systemGraphics->createSprite("pacman", "Sprites/Pacman/pacman-sprite.png");
 	systemGraphics->createSprite("food", "Sprites/Common/food-sprite.png");
 
-	Direction requestedDirection = RIGHT;
-	Direction pinkyRequestedDirection = DOWN;
-	Direction pinkyDirection = DOWN;
+	Command requestedDirection = DIR_RIGHT;
+	Command pinkyRequestedDirection = DIR_DOWN;
+	Command pinkyDirection = DIR_DOWN;
 
 	int shouldSwitchDirection;
 	bool foundTrail = false;
 
 	while (!hasQuit) {
-		while (SDL_PollEvent(&ev) != 0) {
-			if (ev.type == SDL_QUIT) {
-				hasQuit = true;
-			}
-			else if (ev.type == SDL_KEYDOWN && ev.key.repeat == 0) {
-				switch (ev.key.keysym.sym) {
-				case SDLK_RIGHT:
-					requestedDirection = RIGHT;
-					break;
-				case SDLK_LEFT:
-					requestedDirection = LEFT;
-					break;
-				case SDLK_UP:
-					requestedDirection = UP;
-					break;
-				case SDLK_DOWN:
-					requestedDirection = DOWN;
-					break;
-				default:
-					break;
-				}
+		systemInput->registerInput();
+
+		for (Uint16 i = 0; i < systemInput->commands.size(); i++) {
+			Command command = systemInput->commands[i];
+
+			switch (command)
+			{
+			case QUIT: hasQuit = true;
+				break;
+			case DIR_RIGHT: requestedDirection = DIR_RIGHT;
+				break;
+			case DIR_LEFT: requestedDirection = DIR_LEFT;
+				break;
+			case DIR_UP: requestedDirection = DIR_UP;
+				break;
+			case DIR_DOWN: requestedDirection = DIR_DOWN;
+				break;
+			default:
+				break;
 			}
 		}
 
-		SDL_Delay(delay);
+		system->delay(delay);
 
 		systemGraphics->setDrawColor(0, 0, 0, 0);
 		systemGraphics->clear();
@@ -152,16 +150,16 @@ int main(int argc, char ** argv)
 
 			if (checkCollision(pinky->getCollisionBox(), trail[i])) {
 				if (trail[i - 1].x > trail[i].x) {
-					pinkyRequestedDirection = RIGHT;
+					pinkyRequestedDirection = DIR_RIGHT;
 				}
 				else if (trail[i - 1].x < trail[i].x) {
-					pinkyRequestedDirection = LEFT;
+					pinkyRequestedDirection = DIR_LEFT;
 				}
 				else if (trail[i - 1].y < trail[i].y) {
-					pinkyRequestedDirection = UP;
+					pinkyRequestedDirection = DIR_UP;
 				}
 				else {
-					pinkyRequestedDirection = DOWN;
+					pinkyRequestedDirection = DIR_DOWN;
 				}
 
 				foundTrail = true;
@@ -174,10 +172,10 @@ int main(int argc, char ** argv)
 
 			if (shouldSwitchDirection == 0) {
 				if (pinkyRequestedDirection % 2 == 0) {
-					pinkyRequestedDirection = (std::rand() % 2) == 1 ? UP : DOWN;
+					pinkyRequestedDirection = (std::rand() % 2) == 1 ? DIR_UP : DIR_DOWN;
 				}
 				else {
-					pinkyRequestedDirection = (std::rand() % 2) == 1 ? LEFT : RIGHT;
+					pinkyRequestedDirection = (std::rand() % 2) == 1 ? DIR_LEFT : DIR_RIGHT;
 				}
 			}
 		}
@@ -218,7 +216,7 @@ int main(int argc, char ** argv)
 			if (pinkyHasChangedDirection) {
 				continue;
 			}
-			
+
 			// check if tile is in range of pinky
 			if (isInRangeOf(pinky->getCollisionBox(), tiles[i].getCollisionBox(), 50)) {
 				// check if pinky has colided with tile
@@ -226,10 +224,10 @@ int main(int argc, char ** argv)
 					moveCharacter(pinky, -CHARACTER_VELOCITY);
 
 					if (pinkyRequestedDirection % 2 == 0) {
-						pinkyRequestedDirection = (std::rand() % 2) == 1 ? UP : DOWN;
+						pinkyRequestedDirection = (std::rand() % 2) == 1 ? DIR_UP : DIR_DOWN;
 					}
 					else {
-						pinkyRequestedDirection = (std::rand() % 2) == 1 ? LEFT : RIGHT;
+						pinkyRequestedDirection = (std::rand() % 2) == 1 ? DIR_LEFT : DIR_RIGHT;
 					}
 				}
 			}
@@ -385,34 +383,34 @@ void moveCharacter(Character *character, const double velocity)
 	character->shifCollisionBox();
 }
 
-bool changeCharacterDirectionIfPossible(Direction requestedDirection, Character *character, std::vector<GameTile> &tiles, bool fixAngle)
+bool changeCharacterDirectionIfPossible(Command requestedDirection, Character *character, std::vector<GameTile> &tiles, bool fixAngle)
 {
 	bool changedDirection = false;
 
 	CollisionBox characterCollisionBox = character->getCollisionBox();
 
-	if (requestedDirection == DOWN) {
+	if (requestedDirection == DIR_DOWN) {
 		if (!checkForCollisionWithTile(tiles, character, 0, characterCollisionBox.height)) {
 			character->setGoingUp(false);
 			character->setMovingHorizontal(false);
 			changedDirection = true;
 		}
 	}
-	else if (requestedDirection == UP) {
+	else if (requestedDirection == DIR_UP) {
 		if (!checkForCollisionWithTile(tiles, character, 0, -characterCollisionBox.height)) {
 			character->setGoingUp(true);
 			character->setMovingHorizontal(false);
 			changedDirection = true;
 		}
 	}
-	else if (requestedDirection == LEFT) {
+	else if (requestedDirection == DIR_LEFT) {
 		if (!checkForCollisionWithTile(tiles, character, -characterCollisionBox.width, 0)) {
 			character->setGoingRight(false);
 			character->setMovingHorizontal(true);
 			changedDirection = true;
 		}
 	}
-	else if (requestedDirection == RIGHT) {
+	else if (requestedDirection == DIR_RIGHT) {
 		if (!checkForCollisionWithTile(tiles, character, characterCollisionBox.width, 0)) {
 			character->setGoingRight(true);
 			character->setMovingHorizontal(true);
