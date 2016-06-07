@@ -11,20 +11,25 @@ System::~System()
 	this->quit();
 }
 
-SDL_Window * System::createWindow(char *title, int width, int height)
+void System::createWindow(char *name, int width, int height)
 {
-	SDL_Window *window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN);
+	SDL_Window *window = SDL_CreateWindow(name, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN);
 
 	if (window == NULL) {
 		std::cout << "Window could not initialize! Error: " << SDL_GetError() << std::endl;
 	}
 
-	return window;
+	this->windows.insert(std::make_pair(name, window));
 }
 
-void System::closeWindow(SDL_Window *window)
+void System::closeWindow(char *name)
 {
-	SDL_DestroyWindow(window);
+	SDL_DestroyWindow(this->windows[name]);
+}
+
+SDL_Window * System::getWindow(char *name)
+{
+	return this->windows[name];
 }
 
 void System::delay(int milliseconds)

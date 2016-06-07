@@ -55,8 +55,8 @@ int main(int argc, char ** argv)
 	SystemGraphics *systemGraphics = new SystemGraphics();
 	SystemInput *systemInput = new SystemInput();
 
-	SDL_Window *window = system->createWindow("MyPacman", WINDOW_WIDTH, WINDOW_HEIGHT);
-	systemGraphics->initRenderer(window);
+	system->createWindow("MyPacman", WINDOW_WIDTH, WINDOW_HEIGHT);
+	systemGraphics->initRenderer(system->getWindow("MyPacman"));
 
 	int delay = 1000 / 60;
 	bool hasQuit = false;
@@ -244,12 +244,13 @@ int main(int argc, char ** argv)
 		systemGraphics->present();
 	}
 
-	system->closeWindow(window);
+	system->closeWindow("MyPacman");
 
 	delete pacman;
 	delete pinky;
 
 	delete systemGraphics;
+	delete systemInput;
 	delete system;
 
 	return 0;
