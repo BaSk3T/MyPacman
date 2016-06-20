@@ -19,7 +19,7 @@ void PacmanPhysicsComponent::update(GameObject &object, World &world)
 	offsetCollisionBox.y += object.velocityY;
 
 	// check if pacman can take a turn in given direction
-	if (world.CollisionBoxIsColidingWith(ID_TILE, offsetCollisionBox)) {
+	if (world.collisionBoxIsColidingWith(ID_TILE, offsetCollisionBox)) {
 		object.x += this->previousVelocityX;
 		object.y += this->previousVelocityY;
 

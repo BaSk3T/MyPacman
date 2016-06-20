@@ -31,7 +31,7 @@ public:
 	void resolveCollision(GameObject &sender);
 	bool checkCollision(CollisionBox const &a, CollisionBox const &b);
 	bool isInRangeOf(CollisionBox const &a, CollisionBox const &b, unsigned int range);
-	bool CollisionBoxIsColidingWith(int objectId, CollisionBox const &collisionBox);
+	bool collisionBoxIsColidingWith(int objectId, CollisionBox const &collisionBox);
 
 private:
 	static const int delay = 1000 / 60;

@@ -20,18 +20,9 @@ int main(int argc, char ** argv)
 //	std::deque<CollisionBox> trail;
 //	trail.push_front(CollisionBox(CHARACTER_INIT_X_POSITION, CHARACTER_INIT_Y_POSITION, CHARACTER_HEIGHT, CHARACTER_WIDTH));
 //
-//	Character *pinky = new Character(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - 72, 2, CHARACTER_FRAME_DELAY, CHARACTER_WIDTH, CHARACTER_HEIGHT);
-//
-//	systemGraphics->createSprite("pinky", "Sprites/Ghosts/pinky-sprite.png");
-//
-//	int shouldSwitchDirection;
 //	bool foundTrail = false;
 //
 //	while (!hasQuit) {
-//
-//		// pacman 
-//		changeCharacterDirectionIfPossible(requestedDirection, pacman, tiles, true);
-//		moveCharacter(pacman, CHARACTER_VELOCITY);
 //
 //		// when pacman doesn't collide with last added trail add new trail
 //		if (!checkCollision(pacman->getCollisionBox(), trail.front())) {
@@ -80,10 +71,6 @@ int main(int argc, char ** argv)
 //			}
 //		}
 //
-//		//pinky
-//		bool pinkyHasChangedDirection = changeCharacterDirectionIfPossible(pinkyRequestedDirection, pinky, tiles, false);
-//		moveCharacter(pinky, GHOST_VELOCITY);
-//
 //		if (pinkyHasChangedDirection) {
 //			pinkyDirection = pinkyRequestedDirection;
 //		}
@@ -98,39 +85,12 @@ int main(int argc, char ** argv)
 //					moveCharacter(pacman, -CHARACTER_VELOCITY);
 //				}
 //			}
-//
-//			// if pinky has switched direction no need to check if it is colliding
-//			if (pinkyHasChangedDirection) {
-//				continue;
-//			}
-//
-//			// check if tile is in range of pinky
-//			if (isInRangeOf(pinky->getCollisionBox(), tiles[i].getCollisionBox(), 50)) {
-//				// check if pinky has colided with tile
-//				if (checkCollision(pinky->getCollisionBox(), tiles[i].getCollisionBox())) {
-//					moveCharacter(pinky, -CHARACTER_VELOCITY);
-//
-//					if (pinkyRequestedDirection % 2 == 0) {
-//						pinkyRequestedDirection = (std::rand() % 2) == 1 ? DIR_UP : DIR_DOWN;
-//					}
-//					else {
-//						pinkyRequestedDirection = (std::rand() % 2) == 1 ? DIR_LEFT : DIR_RIGHT;
-//					}
-//				}
-//			}
 //		}
-//
-//		// update frame of pinky
-//		systemGraphics->draw("pinky", (int)pinky->getX(), (int)pinky->getY(), pinkyClips[pinkyDirection][pinky->getFrame() / CHARACTER_FRAME_DELAY], pinky->getAngle());
-//		pinky->increaseFrame();
-//
 //	}
-//
-//	delete pinky;
 //
 	delete systemGraphics;
 	delete systemInput;
 	delete system;
-//
+
 	return 0;
 }

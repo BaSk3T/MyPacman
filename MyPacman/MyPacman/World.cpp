@@ -6,8 +6,8 @@ World::World()
 
 World::~World()
 {
-	for (Uint16 i = 0; i < this->objects.size(); i++) {
-		delete this->objects[i];
+	for each (GameObject *object in this->objects) {
+		delete object;
 	}
 }
 
@@ -26,14 +26,14 @@ void World::run(System &system, SystemGraphics &systemGraphics, SystemInput &sys
 	systemGraphics.createSprite("pinky", "Sprites/Ghosts/pinky-sprite.png");
 
 	this->objects.push_back(new GameObject(2, 20, 20, new PacmanInputComponent(), new PacmanPhysicsComponent(), new PacmanGraphicsComponent()));
-	this->objects.push_back(new GameObject(3, 50, 50, new GhostInputComponent(), new GhostPhysicsComponent(), new GhostGraphicsComponent()));
+	this->objects.push_back(new GameObject(3, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - 72, new GhostInputComponent(), new GhostPhysicsComponent(), new GhostGraphicsComponent()));
 
 	while (!hasQuit)
 	{
 		systemInput.registerInput();
 
-		for (Uint16 i = 0; i < systemInput.commands.size(); i++) {
-			if (systemInput.commands[i] == QUIT) {
+		for each (Command command in  systemInput.commands) {
+			if (command == QUIT) {
 				hasQuit = true;
 			}
 		}
@@ -42,8 +42,8 @@ void World::run(System &system, SystemGraphics &systemGraphics, SystemInput &sys
 		systemGraphics.setDrawColor(0, 0, 0, 0);
 		systemGraphics.clear();
 
-		for (Uint16 i = 0; i < this->objects.size(); i++) {
-			this->objects[i]->update(*this, systemGraphics, systemInput);
+		for each (GameObject *object in this->objects) {
+			object->update(*this, systemGraphics, systemInput);
 		}
 
 		systemGraphics.present();
@@ -67,7 +67,7 @@ void World::resolveCollision(GameObject &sender)
 	}
 }
 
-bool World::CollisionBoxIsColidingWith(int objectId, CollisionBox const &collisionBox)
+bool World::collisionBoxIsColidingWith(int objectId, CollisionBox const &collisionBox)
 {
 	for each (GameObject *object in this->objects) {
 		if (object->objectId != objectId) {

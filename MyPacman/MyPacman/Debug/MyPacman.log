@@ -1,11 +1,3 @@
 ﻿  GhostPhysicsComponent.cpp
-  Generating Code...
-  Compiling...
-  World.cpp
-  PacmanPhysicsComponent.cpp
-  Game.cpp
-c:\users\bask3t\desktop\mypacman\mypacman\mypacman\game.cpp(11): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-  FoodPhysicsComponent.cpp
-  Generating Code...
   MyPacman.vcxproj -> C:\Users\BaSk3T\Desktop\MyPacman\MyPacman\Debug\MyPacman.exe
   MyPacman.vcxproj -> C:\Users\BaSk3T\Desktop\MyPacman\MyPacman\Debug\MyPacman.pdb (Partial PDB)
