@@ -3,7 +3,7 @@
 
 
 FoodPhysicsComponent::FoodPhysicsComponent(CollisionBox collisionBox)
-	: collisionBox(collisionBox)
+	: PhysicsComponent(collisionBox)
 {
 }
 
@@ -15,11 +15,6 @@ void FoodPhysicsComponent::update(GameObject &object, World &world)
 {
 }
 
-void FoodPhysicsComponent::receive(int message, int objectId)
+void FoodPhysicsComponent::receive(Message message, int objectId, GameObject &object)
 {
-}
-
-CollisionBox FoodPhysicsComponent::getCollisionBox() const
-{
-	return this->collisionBox;
 }

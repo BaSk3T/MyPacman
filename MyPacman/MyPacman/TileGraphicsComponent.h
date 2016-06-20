@@ -10,7 +10,7 @@ public:
 	~TileGraphicsComponent();
 
 	void update(GameObject &object, SystemGraphics &graphics);
-	void receive(int message, int objectId);
+	void receive(Message message, int objectId, GameObject &object);
 private:
 	Rectangle clip;
 };

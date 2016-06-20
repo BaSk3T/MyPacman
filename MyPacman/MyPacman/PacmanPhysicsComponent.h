@@ -10,12 +10,17 @@ public:
 	~PacmanPhysicsComponent();
 
 	void update(GameObject &object, World &world);
-	void receive(int message, int objectId);
-
+	void receive(Message message, int objectId, GameObject &object);
+	
 private:
 	static const int CHARACTER_WIDTH = 24;
 	static const int CHARACTER_HEIGHT = 24;
+	static const int ID_TILE = 0;
 
-	CollisionBox collisionBox = {0, 0, PacmanGraphicsComponent::CHARACTER_WIDTH, PacmanGraphicsComponent::CHARACTER_HEIGHT};
+	double previousVelocityX = 0;
+	double previousVelocityY = 0;
+	bool usedPreviousVelocity = false;
+
+	void shiftCollisionBox(double x, double y);
 };
 

@@ -23,8 +23,10 @@ void World::run(System &system, SystemGraphics &systemGraphics, SystemInput &sys
 	systemGraphics.createSprite("tile", "Sprites/Common/tiles.png");
 	systemGraphics.createSprite("food", "Sprites/Common/food-sprite.png");
 	systemGraphics.createSprite("pacman", "Sprites/Pacman/pacman-sprite.png");
+	systemGraphics.createSprite("pinky", "Sprites/Ghosts/pinky-sprite.png");
 
-	this->objects.push_back(new GameObject(20, 20, new PacmanInputComponent(), new PacmanPhysicsComponent, new PacmanGraphicsComponent()));
+	this->objects.push_back(new GameObject(2, 20, 20, new PacmanInputComponent(), new PacmanPhysicsComponent(), new PacmanGraphicsComponent()));
+	this->objects.push_back(new GameObject(3, 50, 50, new GhostInputComponent(), new GhostPhysicsComponent(), new GhostGraphicsComponent()));
 
 	while (!hasQuit)
 	{
@@ -48,6 +50,40 @@ void World::run(System &system, SystemGraphics &systemGraphics, SystemInput &sys
 	}
 
 	system.closeWindow("MyPacman");
+}
+
+void World::resolveCollision(GameObject &sender)
+{
+	for each (GameObject *object in this->objects) {
+
+		if (!this->isInRangeOf(sender.physics->getCollisionBox(), object->physics->getCollisionBox(), World::COLLISION_RANGE)) {
+			continue;
+		}
+
+		if (this->checkCollision(sender.physics->getCollisionBox(), object->physics->getCollisionBox())) {
+			object->send(COLLISION, sender.objectId);
+			sender.send(COLLISION, object->objectId);
+		}
+	}
+}
+
+bool World::CollisionBoxIsColidingWith(int objectId, CollisionBox const &collisionBox)
+{
+	for each (GameObject *object in this->objects) {
+		if (object->objectId != objectId) {
+			continue;
+		}
+
+		if (!this->isInRangeOf(collisionBox, object->physics->getCollisionBox(), World::COLLISION_RANGE)) {
+			continue;
+		}
+
+		if (this->checkCollision(collisionBox, object->physics->getCollisionBox())) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 bool World::checkCollision(CollisionBox const &a, CollisionBox const &b)

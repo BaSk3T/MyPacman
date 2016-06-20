@@ -1,7 +1,8 @@
 #include "GameObject.h"
 
-GameObject::GameObject(double x, double y, InputComponent *input, PhysicsComponent *physics, GraphicsComponent *graphics)
-	: x(x),
+GameObject::GameObject(int objectId, double x, double y, InputComponent *input, PhysicsComponent *physics, GraphicsComponent *graphics)
+	: objectId(objectId),
+	x(x),
 	y(y),
 	input(input),
 	physics(physics),
@@ -23,9 +24,9 @@ void GameObject::update(World &world, SystemGraphics &graphics, SystemInput &inp
 	this->graphics->update(*this, graphics);
 }
 
-void GameObject::send(int message, int objectId)
+void GameObject::send(Message message, int objectId)
 {
-	this->input->receive(message, objectId);
-	this->physics->receive(message, objectId);
-	this->graphics->receive(message, objectId);
+	this->input->receive(message, objectId, *this);
+	this->physics->receive(message, objectId, *this);
+	this->graphics->receive(message, objectId, *this);
 }

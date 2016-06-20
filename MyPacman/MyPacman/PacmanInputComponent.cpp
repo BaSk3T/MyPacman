@@ -36,7 +36,7 @@ void PacmanInputComponent::update(GameObject &object, SystemInput &input)
 	}
 }
 
-void PacmanInputComponent::receive(int message, int objectId)
+void PacmanInputComponent::receive(Message message, int objectId, GameObject &object)
 {
 
 }

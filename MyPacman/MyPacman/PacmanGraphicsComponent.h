@@ -13,7 +13,7 @@ public:
 	~PacmanGraphicsComponent();
 
 	void update(GameObject &object, SystemGraphics &graphics);
-	void receive(int message, int objectId);
+	void receive(Message message, int objectId, GameObject &object);
 
 private:
 	static Rectangle clips[];
@@ -22,8 +22,7 @@ private:
 
 	int frame = 0;
 	int angle = 0;
-
-	
+	bool changeAngle = true;
 
 	void fixAngle(GameObject &object);
 };

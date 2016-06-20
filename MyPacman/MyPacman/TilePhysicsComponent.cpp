@@ -1,6 +1,7 @@
 #include "TilePhysicsComponent.h"
 
-TilePhysicsComponent::TilePhysicsComponent(CollisionBox collisionBox) : collisionBox(collisionBox)
+TilePhysicsComponent::TilePhysicsComponent(CollisionBox collisionBox)
+	: PhysicsComponent(collisionBox)
 {
 }
 
@@ -12,11 +13,6 @@ void TilePhysicsComponent::update(GameObject &object, World &world)
 {
 }
 
-void TilePhysicsComponent::receive(int message, int objectId)
+void TilePhysicsComponent::receive(Message message, int objectId, GameObject &object)
 {
-}
-
-CollisionBox TilePhysicsComponent::getCollisionBox() const
-{
-	return this->collisionBox;
 }

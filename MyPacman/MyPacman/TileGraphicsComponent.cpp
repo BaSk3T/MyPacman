@@ -13,7 +13,7 @@ void TileGraphicsComponent::update(GameObject &object, SystemGraphics &graphics)
 	graphics.draw("tile", (int)object.x, (int)object.y, this->clip);
 }
 
-void TileGraphicsComponent::receive(int message, int objectId)
+void TileGraphicsComponent::receive(Message message, int objectId, GameObject &object)
 {
 
 }

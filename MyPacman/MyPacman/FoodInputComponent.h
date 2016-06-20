@@ -10,6 +10,6 @@ public:
 	~FoodInputComponent();
 
 	void update(GameObject &object, SystemInput &input);
-	void receive(int message, int objectId);
+	void receive(Message message, int objectId, GameObject &object);
 };
 

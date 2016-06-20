@@ -10,14 +10,15 @@ PacmanGraphicsComponent::PacmanGraphicsComponent()
 {
 }
 
-
 PacmanGraphicsComponent::~PacmanGraphicsComponent()
 {
 }
 
 void PacmanGraphicsComponent::update(GameObject &object, SystemGraphics &graphics)
 {
-	this->fixAngle(object);
+	if (this->changeAngle) {
+		this->fixAngle(object);
+	}
 
 	graphics.draw("pacman", (int)object.x, (int)object.y, this->clips[this->frame / FRAME_DELAY], this->angle);
 
@@ -28,9 +29,15 @@ void PacmanGraphicsComponent::update(GameObject &object, SystemGraphics &graphic
 	}
 }
 
-void PacmanGraphicsComponent::receive(int message, int objectId)
+void PacmanGraphicsComponent::receive(Message message, int objectId, GameObject &object)
 {
+	if (message == STATE_CHANGE && objectId == object.objectId) {
+		this->changeAngle = false;
+	}
 
+	if (message == STATE_ORIGINAL && objectId == object.objectId) {
+		this->changeAngle = true;
+	}
 }
 
 void PacmanGraphicsComponent::fixAngle(GameObject &object)

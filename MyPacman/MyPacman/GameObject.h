@@ -13,14 +13,14 @@ public:
 	double x, y;
 	double velocityX;
 	double velocityY;
+	int objectId;
 
-	GameObject(double x, double y, InputComponent *input, PhysicsComponent *physics, GraphicsComponent *graphics);
+	GameObject(int objectId, double x, double y, InputComponent *input, PhysicsComponent *physics, GraphicsComponent *graphics);
 	~GameObject();
 
 	void update(World &world, SystemGraphics &graphics, SystemInput &input);
-	void send(int message, int objectId);
+	void send(Message message, int objectId);
 
-private:
 	InputComponent *input;
 	PhysicsComponent *physics;
 	GraphicsComponent *graphics;

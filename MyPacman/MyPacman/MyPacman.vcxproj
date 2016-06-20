@@ -125,6 +125,9 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GameTexture.cpp" />
+    <ClCompile Include="GhostGraphicsComponent.cpp" />
+    <ClCompile Include="GhostInputComponent.cpp" />
+    <ClCompile Include="GhostPhysicsComponent.cpp" />
     <ClCompile Include="Level.cpp" />
     <ClCompile Include="PacmanGraphicsComponent.cpp" />
     <ClCompile Include="PacmanInputComponent.cpp" />
@@ -147,9 +150,13 @@
     <ClInclude Include="FoodPhysicsComponent.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameTexture.h" />
+    <ClInclude Include="GhostGraphicsComponent.h" />
+    <ClInclude Include="GhostInputComponent.h" />
+    <ClInclude Include="GhostPhysicsComponent.h" />
     <ClInclude Include="GraphicsComponent.h" />
     <ClInclude Include="InputComponent.h" />
     <ClInclude Include="Level.h" />
+    <ClInclude Include="Message.h" />
     <ClInclude Include="PacmanGraphicsComponent.h" />
     <ClInclude Include="PacmanInputComponent.h" />
     <ClInclude Include="PacmanPhysicsComponent.h" />

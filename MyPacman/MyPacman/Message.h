@@ -1,0 +1,6 @@
+enum Message
+{
+	COLLISION = 0,
+	STATE_CHANGE = 1,
+	STATE_ORIGINAL = 2
+};

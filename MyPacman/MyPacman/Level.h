@@ -22,7 +22,9 @@ public:
 	static const int NUMBER_OF_TILE_TYPES = 15;
 	static const int FOOD_WIDTH = 6;
 	static const int FOOD_HEIGHT = 6;
-	
+	static const int TILE_ID = 0;
+	static const int FOOD_ID = 1;
+
 	Level();
 	~Level();
 

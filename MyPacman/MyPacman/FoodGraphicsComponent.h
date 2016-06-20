@@ -9,10 +9,10 @@ public:
 	~FoodGraphicsComponent();
 
 	void update(GameObject &object, SystemGraphics &graphics);
-	void receive(int message, int objectId);
+	void receive(Message message, int objectId, GameObject &object);
 
 private:
-	int eaten = 0;
+	static const int ID_PACMAN = 2;
 	bool draw = true;
 };
 

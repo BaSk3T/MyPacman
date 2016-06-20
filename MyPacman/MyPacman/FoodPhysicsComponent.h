@@ -9,11 +9,6 @@ public:
 	~FoodPhysicsComponent();
 
 	void update(GameObject &object, World &world);
-	void receive(int message, int objectId);
-
-	CollisionBox getCollisionBox() const;
-
-private:
-	CollisionBox collisionBox;
+	void receive(Message message, int objectId, GameObject &object);
 };
 

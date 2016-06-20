@@ -27,9 +27,10 @@ void Level::loadLevel(char *path, std::vector<GameObject*> &objects, int windowW
 		std::cout << "Unable to load map file!" << std::endl;
 	}
 	else {
-		for (short i = 0; i < Level::NUMBER_OF_TILES; i++) {
-			int tyleType = -1;
+		int tyleType = -1;
 
+		for (short i = 0; i < Level::NUMBER_OF_TILES; i++) {
+			tyleType = -1;
 			map >> tyleType;
 
 			if (map.fail()) {
@@ -40,10 +41,10 @@ void Level::loadLevel(char *path, std::vector<GameObject*> &objects, int windowW
 				std::cout << "Error loading map: Unrecognized tyle type!" << std::endl;
 			}
 			else if (1 <= tyleType && tyleType < Level::NUMBER_OF_TILE_TYPES) {
-				objects.push_back(new GameObject(x, y, new TileInputComponent(), new TilePhysicsComponent(CollisionBox(x, y, Level::TILE_WIDTH, Level::TILE_HEIGHT)), new TileGraphicsComponent(this->tileClips[tyleType - 1])));
+				objects.push_back(new GameObject(Level::TILE_ID, x, y, new TileInputComponent(), new TilePhysicsComponent(CollisionBox(x, y, Level::TILE_WIDTH, Level::TILE_HEIGHT)), new TileGraphicsComponent(this->tileClips[tyleType - 1])));
 			}
 			else if (tyleType - 1 == FOOD) {
-				objects.push_back(new GameObject(x, y, new FoodInputComponent(), new FoodPhysicsComponent(CollisionBox(x + (TILE_WIDTH - FOOD_WIDTH) / 2, y + (TILE_HEIGHT - FOOD_HEIGHT) / 2, FOOD_WIDTH, FOOD_HEIGHT)), new FoodGraphicsComponent()));
+				objects.push_back(new GameObject(Level::FOOD_ID, x, y, new FoodInputComponent(), new FoodPhysicsComponent(CollisionBox(x + (TILE_WIDTH - FOOD_WIDTH) / 2, y + (TILE_HEIGHT - FOOD_HEIGHT) / 2, FOOD_WIDTH, FOOD_HEIGHT)), new FoodGraphicsComponent()));
 			}
 
 			x += Level::TILE_WIDTH;
