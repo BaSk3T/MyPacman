@@ -7,10 +7,10 @@ Rectangle GhostGraphicsComponent::clips[4][2] =  {
 		{ { 72, 0, 24, 24 },{ 72, 24, 24, 24 } }
 	};
 
-GhostGraphicsComponent::GhostGraphicsComponent()
+GhostGraphicsComponent::GhostGraphicsComponent(char *textureName)
+	: textureName(textureName)
 {
 }
-
 
 GhostGraphicsComponent::~GhostGraphicsComponent()
 {
@@ -20,7 +20,7 @@ void GhostGraphicsComponent::update(GameObject &object, SystemGraphics &graphics
 {
 	this->determineDirection(object);
 
-	graphics.draw("pinky", (int)object.x, (int)object.y, this->clips[this->direction][this->frame / FRAME_DELAY]);
+	graphics.draw(this->textureName, (int)object.x, (int)object.y, this->clips[this->direction][this->frame / FRAME_DELAY]);
 
 	this->frame++;
 

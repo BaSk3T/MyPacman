@@ -7,7 +7,7 @@
 class GhostGraphicsComponent : public GraphicsComponent
 {
 public:
-	GhostGraphicsComponent();
+	GhostGraphicsComponent(char *textureName);
 	~GhostGraphicsComponent();
 
 	void update(GameObject &object, SystemGraphics &graphics);
@@ -21,5 +21,6 @@ private:
 
 	int frame = 0;
 	int direction = 0;
+	char *textureName;
 };
 

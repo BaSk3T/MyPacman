@@ -24,9 +24,15 @@ void World::run(System &system, SystemGraphics &systemGraphics, SystemInput &sys
 	systemGraphics.createSprite("food", "Sprites/Common/food-sprite.png");
 	systemGraphics.createSprite("pacman", "Sprites/Pacman/pacman-sprite.png");
 	systemGraphics.createSprite("pinky", "Sprites/Ghosts/pinky-sprite.png");
+	systemGraphics.createSprite("blinky", "Sprites/Ghosts/blinky-sprite.png");
+	systemGraphics.createSprite("inky", "Sprites/Ghosts/inky-sprite.png");
+	systemGraphics.createSprite("clyde", "Sprites/Ghosts/clyde-sprite.png");
 
 	this->objects.push_back(new GameObject(2, 20, 20, new PacmanInputComponent(), new PacmanPhysicsComponent(), new PacmanGraphicsComponent()));
-	this->objects.push_back(new GameObject(3, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - 72, new GhostInputComponent(), new GhostPhysicsComponent(), new GhostGraphicsComponent()));
+	this->objects.push_back(new GameObject(3, WINDOW_WIDTH / 2 - 30, WINDOW_HEIGHT / 2 - 72, new GhostInputComponent(), new GhostPhysicsComponent(), new GhostGraphicsComponent("pinky")));
+	this->objects.push_back(new GameObject(3, WINDOW_WIDTH / 2 - 20, WINDOW_HEIGHT / 2 - 72, new GhostInputComponent(), new GhostPhysicsComponent(), new GhostGraphicsComponent("blinky")));
+	this->objects.push_back(new GameObject(3, WINDOW_WIDTH / 2 - 10, WINDOW_HEIGHT / 2 - 72, new GhostInputComponent(), new GhostPhysicsComponent(), new GhostGraphicsComponent("inky")));
+	this->objects.push_back(new GameObject(3, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - 72, new GhostInputComponent(), new GhostPhysicsComponent(), new GhostGraphicsComponent("clyde")));
 
 	while (!hasQuit)
 	{
