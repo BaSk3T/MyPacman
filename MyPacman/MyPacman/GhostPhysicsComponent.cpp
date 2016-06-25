@@ -2,7 +2,6 @@
 #include "World.h"
 
 GhostPhysicsComponent::GhostPhysicsComponent()
-	: PhysicsComponent(collisionBox)
 {
 	this->collisionBox = CollisionBox(0, 0, GhostPhysicsComponent::GHOST_WIDTH, GhostPhysicsComponent::GHOST_HEIGHT);
 }
@@ -13,14 +12,13 @@ GhostPhysicsComponent::~GhostPhysicsComponent()
 
 void GhostPhysicsComponent::update(GameObject &object, World &world)
 {
-	int shouldSwitchDirection = (std::rand() % 1000) % 237;
+	int shouldSwitchDirection = (std::rand() % 1000) % 113;
 
 	if (shouldSwitchDirection == 0) {
 		this->switchDirection(object);
 	}
 
-	object.x += object.velocityX;
-	object.y += object.velocityY;
+	this->takeTurnIfPossible(world, object);
 
 	this->shiftCollisionBox(object.x, object.y);
 	world.resolveCollision(object);
@@ -29,8 +27,14 @@ void GhostPhysicsComponent::update(GameObject &object, World &world)
 void GhostPhysicsComponent::receive(Message message, int objectId, GameObject &object)
 {
 	if (message == COLLISION && objectId == 0) {
-		object.x -= object.velocityX;
-		object.y -= object.velocityY;
+		if (this->usedPreviousVelocity) {
+			object.x -= this->previousVelocityX;
+			object.y -= this->previousVelocityY;
+		}
+		else {
+			object.x -= object.velocityX;
+			object.y -= object.velocityY;
+		}
 
 		shiftCollisionBox(object.x, object.y);
 		switchDirection(object);
@@ -47,10 +51,4 @@ void GhostPhysicsComponent::switchDirection(GameObject &object)
 		object.velocityY = 0;
 		object.velocityX = (std::rand() % 2) == 1 ? VELOCITY : -VELOCITY;
 	}
-}
-
-void GhostPhysicsComponent::shiftCollisionBox(double x, double y)
-{
-	this->collisionBox.x = x;
-	this->collisionBox.y = y;
 }

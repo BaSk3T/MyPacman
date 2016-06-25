@@ -1,8 +1,7 @@
-#include "PhysicsComponent.h"
-#include "GameObject.h"
+#include "MovingPhysicsComponent.h"
 
 #pragma once
-class GhostPhysicsComponent : public PhysicsComponent
+class GhostPhysicsComponent : public MovingPhysicsComponent
 {
 public:
 	GhostPhysicsComponent();
@@ -17,6 +16,5 @@ private:
 	static const int VELOCITY = 2;
 
 	void switchDirection(GameObject &object);
-	void shiftCollisionBox(double x, double y);
 };
 

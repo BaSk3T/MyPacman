@@ -22,5 +22,6 @@ private:
 	int frame = 0;
 	int direction = 0;
 	char *textureName;
+	bool shouldDetermineDirection;
 };
 

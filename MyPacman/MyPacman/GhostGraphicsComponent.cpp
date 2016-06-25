@@ -18,7 +18,9 @@ GhostGraphicsComponent::~GhostGraphicsComponent()
 
 void GhostGraphicsComponent::update(GameObject &object, SystemGraphics &graphics)
 {
-	this->determineDirection(object);
+	if (this->shouldDetermineDirection) {
+		this->determineDirection(object);
+	}
 
 	graphics.draw(this->textureName, (int)object.x, (int)object.y, this->clips[this->direction][this->frame / FRAME_DELAY]);
 
@@ -31,7 +33,13 @@ void GhostGraphicsComponent::update(GameObject &object, SystemGraphics &graphics
 
 void GhostGraphicsComponent::receive(Message message, int objectId, GameObject &object)
 {
+	if (message == STATE_CHANGE && objectId == object.objectId) {
+		this->shouldDetermineDirection = false;
+	}
 
+	if (message == STATE_ORIGINAL && objectId == object.objectId) {
+		this->shouldDetermineDirection = true;
+	}
 }
 
 void GhostGraphicsComponent::determineDirection(GameObject &object)

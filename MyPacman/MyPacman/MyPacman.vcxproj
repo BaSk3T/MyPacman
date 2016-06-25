@@ -129,6 +129,7 @@
     <ClCompile Include="GhostInputComponent.cpp" />
     <ClCompile Include="GhostPhysicsComponent.cpp" />
     <ClCompile Include="Level.cpp" />
+    <ClCompile Include="MovingPhysicsComponent.cpp" />
     <ClCompile Include="PacmanGraphicsComponent.cpp" />
     <ClCompile Include="PacmanInputComponent.cpp" />
     <ClCompile Include="PacmanPhysicsComponent.cpp" />
@@ -157,6 +158,7 @@
     <ClInclude Include="InputComponent.h" />
     <ClInclude Include="Level.h" />
     <ClInclude Include="Message.h" />
+    <ClInclude Include="MovingPhysicsComponent.h" />
     <ClInclude Include="PacmanGraphicsComponent.h" />
     <ClInclude Include="PacmanInputComponent.h" />
     <ClInclude Include="PacmanPhysicsComponent.h" />
