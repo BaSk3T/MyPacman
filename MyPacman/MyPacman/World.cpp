@@ -34,6 +34,8 @@ void World::run(System &system, SystemGraphics &systemGraphics, SystemInput &sys
 	this->objects.push_back(new GameObject(3, WINDOW_WIDTH / 2 - 10, WINDOW_HEIGHT / 2 - 72, new GhostInputComponent(), new GhostPhysicsComponent(), new GhostGraphicsComponent("inky")));
 	this->objects.push_back(new GameObject(3, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - 72, new GhostInputComponent(), new GhostPhysicsComponent(), new GhostGraphicsComponent("clyde")));
 
+	this->trail.push_front(CollisionBox(20, 20, 24, 24));
+
 	while (!hasQuit)
 	{
 		systemInput.registerInput();
@@ -50,6 +52,10 @@ void World::run(System &system, SystemGraphics &systemGraphics, SystemInput &sys
 
 		for each (GameObject *object in this->objects) {
 			object->update(*this, systemGraphics, systemInput);
+		}
+
+		if (this->trail.size() >= 5) {
+			this->trail.pop_back();
 		}
 
 		systemGraphics.present();

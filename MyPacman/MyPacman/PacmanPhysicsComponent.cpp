@@ -15,6 +15,10 @@ void PacmanPhysicsComponent::update(GameObject &object, World &world)
 {
 	this->takeTurnIfPossible(world, object);
 
+	if (!world.checkCollision(this->collisionBox, world.trail.front())) {
+		world.trail.push_front(this->collisionBox);
+	}
+
 	this->shiftCollisionBox(object.x, object.y);
 	world.resolveCollision(object);
 }

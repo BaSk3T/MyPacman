@@ -1,4 +1,5 @@
 #include <vector>
+#include <deque>
 #include "CollisionBox.h"
 #include "GameObject.h"
 #include "System.h"
@@ -23,6 +24,7 @@ public:
 	static const int COLLISION_RANGE = 50;
 
 	std::vector<GameObject*> objects;
+	std::deque<CollisionBox> trail;
 
 	World();
 	~World();

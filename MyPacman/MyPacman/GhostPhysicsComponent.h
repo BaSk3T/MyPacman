@@ -15,6 +15,9 @@ private:
 	static const int GHOST_HEIGHT = 24;
 	static const int VELOCITY = 2;
 
+	bool foundTrail = false;
+
 	void switchDirection(GameObject &object);
+	bool isCollidingWithTrail(GameObject &object, World &world);
 };
 
