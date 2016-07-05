@@ -12,6 +12,7 @@ public:
 	void createWindow(char *name, int width, int height);
 	void closeWindow(char *name);
 	SDL_Window * getWindow(char *name);
+	void setWindowFullScreen(SDL_Window *window);
 	void delay(int milliseconds);
 
 private:

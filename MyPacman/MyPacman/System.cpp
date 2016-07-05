@@ -14,7 +14,7 @@ System::~System()
 void System::createWindow(char *name, int width, int height)
 {
 	SDL_Window *window = SDL_CreateWindow(name, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN);
-
+	
 	if (window == NULL) {
 		std::cout << "Window could not initialize! Error: " << SDL_GetError() << std::endl;
 	}
@@ -30,6 +30,11 @@ void System::closeWindow(char *name)
 SDL_Window * System::getWindow(char *name)
 {
 	return this->windows[name];
+}
+
+void System::setWindowFullScreen(SDL_Window *window)
+{
+	SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
 }
 
 void System::delay(int milliseconds)

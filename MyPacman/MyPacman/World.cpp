@@ -16,6 +16,7 @@ void World::run(System &system, SystemGraphics &systemGraphics, SystemInput &sys
 	bool hasQuit = false;
 
 	system.createWindow("MyPacman", World::WINDOW_WIDTH, World::WINDOW_HEIGHT);
+	system.setWindowFullScreen(system.getWindow("MyPacman"));
 	systemGraphics.initRenderer(system.getWindow("MyPacman"));
 
 	Level level = Level();
