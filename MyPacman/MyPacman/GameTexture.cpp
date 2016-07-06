@@ -4,7 +4,6 @@ GameTexture::GameTexture()
 {
 }
 
-
 GameTexture::~GameTexture()
 {
 	this->free();
@@ -45,6 +44,37 @@ bool GameTexture::loadFromFile(char *path, SDL_Renderer *renderer)
 
 		SDL_FreeSurface(loadedImage);
 
+		this->texture = newTexture;
+	}
+
+	return newTexture != NULL;
+}
+
+bool GameTexture::loadFromRenderedText(std::string textureText, SDL_Color textColor, TTF_Font *font, SDL_Renderer *renderer)
+{
+	this->free();
+
+	SDL_Surface *textSurface = TTF_RenderText_Solid(font, textureText.c_str(), textColor);
+	SDL_Texture *newTexture = nullptr;
+
+	if (textSurface == NULL)
+	{
+		printf("Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError());
+	}
+	else
+	{
+		newTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+
+		if (newTexture == NULL)
+		{
+			printf("Unable to create texture from rendered text! SDL Error: %s\n", SDL_GetError());
+		}
+		else {
+			this->width = textSurface->w;
+			this->height = textSurface->h;
+		}
+
+		SDL_FreeSurface(textSurface);
 		this->texture = newTexture;
 	}
 

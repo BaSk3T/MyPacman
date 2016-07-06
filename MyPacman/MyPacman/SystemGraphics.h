@@ -14,6 +14,8 @@ public:
 
 	void initRenderer(SDL_Window *window);
 	void createSprite(std::string name, char *path);
+	void createTextSprite(std::string name);
+	void updateTextSprite(std::string name, std::string textureText, TTF_Font *font);
 	void draw(char *name, int x, int y, int angle = 0);
 	void draw(char *name, int x, int y, Rectangle clip, int angle = 0);
 	void setDrawColor(Uint8 red, Uint8 green, Uint8 blue, Uint8 a);

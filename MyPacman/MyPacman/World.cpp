@@ -11,13 +11,15 @@ World::~World()
 	}
 }
 
-void World::run(System &system, SystemGraphics &systemGraphics, SystemInput &systemInput)
+void World::run(System &system, SystemGraphics &systemGraphics, SystemInput &systemInput, SystemFont &systemFont)
 {
 	bool hasQuit = false;
 
 	system.createWindow("MyPacman", World::WINDOW_WIDTH, World::WINDOW_HEIGHT);
-	system.setWindowFullScreen(system.getWindow("MyPacman"));
+	//system.setWindowFullScreen(system.getWindow("MyPacman"));
 	systemGraphics.initRenderer(system.getWindow("MyPacman"));
+
+	systemFont.loadFont("arial14", "Fonts/arial.ttf", 14);
 
 	Level level = Level();
 	level.loadLevel("Levels/level.map", this->objects, World::WINDOW_WIDTH, World::WINDOW_HEIGHT);
@@ -37,6 +39,14 @@ void World::run(System &system, SystemGraphics &systemGraphics, SystemInput &sys
 
 	this->trail.push_front(CollisionBox(20, 20, 24, 24));
 
+	Timer fpsTimer = Timer();
+	std::stringstream timeText;
+
+	int countedFrames = 0;
+	float avgFPS;
+	fpsTimer.start();
+	systemGraphics.createTextSprite("fpsTimer");
+
 	while (!hasQuit)
 	{
 		systemInput.registerInput();
@@ -47,7 +57,6 @@ void World::run(System &system, SystemGraphics &systemGraphics, SystemInput &sys
 			}
 		}
 
-		system.delay(this->delay);
 		systemGraphics.setDrawColor(0, 0, 0, 0);
 		systemGraphics.clear();
 
@@ -59,7 +68,21 @@ void World::run(System &system, SystemGraphics &systemGraphics, SystemInput &sys
 			this->trail.pop_back();
 		}
 
+		avgFPS = countedFrames / (fpsTimer.getTicks() / 1000.f);
+
+		if (avgFPS > 2000000) {
+			avgFPS = 0;
+		}
+
+		timeText.str("");
+		timeText << "FPS: " << avgFPS;
+
+		systemGraphics.updateTextSprite("fpsTimer", timeText.str().c_str(), systemFont.getFont("arial14"));
+		systemGraphics.draw("fpsTimer", WINDOW_WIDTH - WINDOW_WIDTH / 10, WINDOW_HEIGHT - WINDOW_HEIGHT / 10);
+
 		systemGraphics.present();
+		system.delay(this->delay);
+		++countedFrames;
 	}
 
 	system.closeWindow("MyPacman");

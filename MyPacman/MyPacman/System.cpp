@@ -5,7 +5,6 @@ System::System()
 	this->init();
 }
 
-
 System::~System()
 {
 	this->quit();

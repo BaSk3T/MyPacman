@@ -5,7 +5,10 @@
 #include "System.h"
 #include "SystemGraphics.h"
 #include "SystemInput.h"
+#include "SystemFont.h"
+#include "Timer.h"
 #include "Level.h"
+#include <sstream>
 
 #include "PacmanGraphicsComponent.h"
 #include "PacmanInputComponent.h"
@@ -29,7 +32,7 @@ public:
 	World();
 	~World();
 	
-	void run(System &system, SystemGraphics &systemGraphics, SystemInput &systemInput);
+	void run(System &system, SystemGraphics &systemGraphics, SystemInput &systemInput, SystemFont &systemFont);
 	void resolveCollision(GameObject &sender);
 	bool checkCollision(CollisionBox const &a, CollisionBox const &b);
 	bool isInRangeOf(CollisionBox const &a, CollisionBox const &b, unsigned int range);

@@ -8,8 +8,7 @@ SystemGraphics::SystemGraphics()
 
 SystemGraphics::~SystemGraphics()
 {
-	for (std::map<std::string, GameTexture*>::iterator it = this->sprites.begin(); it != this->sprites.end(); ++it)
-	{
+	for (std::map<std::string, GameTexture*>::iterator it = this->sprites.begin(); it != this->sprites.end(); ++it) {
 		delete it->second;
 	}
 
@@ -62,10 +61,27 @@ void SystemGraphics::createSprite(std::string name, char *path)
 	this->sprites.insert(std::make_pair(name, sprite));
 }
 
+void SystemGraphics::createTextSprite(std::string name)
+{
+	// is there already a sprite with that name
+	if (this->sprites.count(name)) {
+		std::cout << "Sprite with name " << name << " already exists!" << std::endl;
+		return;
+	}
+
+	GameTexture *sprite = new GameTexture();
+	this->sprites.insert(std::make_pair(name, sprite));
+}
+
+void SystemGraphics::updateTextSprite(std::string name, std::string textureText, TTF_Font *font)
+{
+	SDL_Color color = { 0, 255, 0, 255 };
+	this->sprites[name]->loadFromRenderedText(textureText, color, font, this->renderer);
+}
+
 void SystemGraphics::init()
 {
-	if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG))
-	{
+	if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)) {
 		std::cout << "SDL_image could not initialize! Error: " << IMG_GetError() << std::endl;
 	}
 }
