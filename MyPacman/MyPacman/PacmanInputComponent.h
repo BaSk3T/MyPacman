@@ -12,6 +12,6 @@ public:
 	void receive(Message message, int objectId, GameObject &object);
 
 private:
-	static const int VELOCITY = 2;
+	static const double VELOCITY;
 };
 

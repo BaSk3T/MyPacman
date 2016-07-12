@@ -25,6 +25,8 @@ public:
 	static const int WINDOW_WIDTH = 1024;
 	static const int WINDOW_HEIGHT = 640;
 	static const int COLLISION_RANGE = 50;
+	static const int SCREEN_FPS = 60;
+	static const int SCREEN_TICKS_PER_FRAME = 1000 / SCREEN_FPS;
 
 	std::vector<GameObject*> objects;
 	std::deque<CollisionBox> trail;

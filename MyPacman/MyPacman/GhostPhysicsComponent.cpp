@@ -1,6 +1,8 @@
 #include "GhostPhysicsComponent.h"
 #include "World.h"
 
+const double GhostPhysicsComponent::VELOCITY = 1.5;
+
 GhostPhysicsComponent::GhostPhysicsComponent()
 {
 	this->collisionBox = CollisionBox(0, 0, GhostPhysicsComponent::GHOST_WIDTH, GhostPhysicsComponent::GHOST_HEIGHT);

@@ -1,5 +1,7 @@
 #include "PacmanInputComponent.h"
 
+const double PacmanInputComponent::VELOCITY = 1.5;
+
 PacmanInputComponent::PacmanInputComponent()
 {
 }

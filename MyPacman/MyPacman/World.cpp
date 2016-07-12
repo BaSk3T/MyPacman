@@ -32,14 +32,15 @@ void World::run(System &system, SystemGraphics &systemGraphics, SystemInput &sys
 	systemGraphics.createSprite("clyde", "Sprites/Ghosts/clyde-sprite.png");
 
 	this->objects.push_back(new GameObject(2, 20, 20, new PacmanInputComponent(), new PacmanPhysicsComponent(), new PacmanGraphicsComponent()));
-	this->objects.push_back(new GameObject(3, WINDOW_WIDTH / 2 - 30, WINDOW_HEIGHT / 2 - 72, new GhostInputComponent(), new GhostPhysicsComponent(), new GhostGraphicsComponent("pinky")));
-	this->objects.push_back(new GameObject(3, WINDOW_WIDTH / 2 - 20, WINDOW_HEIGHT / 2 - 72, new GhostInputComponent(), new GhostPhysicsComponent(), new GhostGraphicsComponent("blinky")));
-	this->objects.push_back(new GameObject(3, WINDOW_WIDTH / 2 - 10, WINDOW_HEIGHT / 2 - 72, new GhostInputComponent(), new GhostPhysicsComponent(), new GhostGraphicsComponent("inky")));
-	this->objects.push_back(new GameObject(3, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - 72, new GhostInputComponent(), new GhostPhysicsComponent(), new GhostGraphicsComponent("clyde")));
+	this->objects.push_back(new GameObject(3, WINDOW_WIDTH / 2 - 15, WINDOW_HEIGHT / 2 - 72, new GhostInputComponent(), new GhostPhysicsComponent(), new GhostGraphicsComponent("pinky")));
+	this->objects.push_back(new GameObject(3, WINDOW_WIDTH / 2 - 15, WINDOW_HEIGHT / 2 - 72, new GhostInputComponent(), new GhostPhysicsComponent(), new GhostGraphicsComponent("blinky")));
+	this->objects.push_back(new GameObject(3, WINDOW_WIDTH / 2 - 15, WINDOW_HEIGHT / 2 - 24, new GhostInputComponent(), new GhostPhysicsComponent(), new GhostGraphicsComponent("inky")));
+	this->objects.push_back(new GameObject(3, WINDOW_WIDTH / 2 - 15, WINDOW_HEIGHT / 2 - 24, new GhostInputComponent(), new GhostPhysicsComponent(), new GhostGraphicsComponent("clyde")));
 
 	this->trail.push_front(CollisionBox(20, 20, 24, 24));
 
 	Timer fpsTimer = Timer();
+	Timer capTimer = Timer();
 	std::stringstream timeText;
 
 	int countedFrames = 0;
@@ -49,6 +50,7 @@ void World::run(System &system, SystemGraphics &systemGraphics, SystemInput &sys
 
 	while (!hasQuit)
 	{
+		capTimer.start();
 		systemInput.registerInput();
 
 		for each (Command command in  systemInput.commands) {
@@ -81,8 +83,15 @@ void World::run(System &system, SystemGraphics &systemGraphics, SystemInput &sys
 		systemGraphics.draw("fpsTimer", WINDOW_WIDTH - WINDOW_WIDTH / 10, WINDOW_HEIGHT - WINDOW_HEIGHT / 10);
 
 		systemGraphics.present();
-		system.delay(this->delay);
+
 		++countedFrames;
+
+		//If frame finished early
+		int frameTicks = capTimer.getTicks();
+		if (frameTicks < SCREEN_TICKS_PER_FRAME) {
+			//Wait remaining time
+			system.delay(SCREEN_TICKS_PER_FRAME - frameTicks);
+		}
 	}
 
 	system.closeWindow("MyPacman");

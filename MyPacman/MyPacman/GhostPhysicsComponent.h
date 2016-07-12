@@ -13,7 +13,7 @@ public:
 private:
 	static const int GHOST_WIDTH = 24;
 	static const int GHOST_HEIGHT = 24;
-	static const int VELOCITY = 2;
+	static const double VELOCITY;
 
 	bool foundTrail = false;
 
