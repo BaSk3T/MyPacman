@@ -13,7 +13,9 @@ PacmanPhysicsComponent::~PacmanPhysicsComponent()
 
 void PacmanPhysicsComponent::update(GameObject &object, World &world)
 {
-	this->takeTurnIfPossible(world, object);
+	if (this->takeTurnIfPossible(world, object)) {
+		this->changedDirection = false;
+	}
 
 	if (!world.checkCollision(this->collisionBox, world.trail.front())) {
 		world.trail.push_front(this->collisionBox);
@@ -36,5 +38,9 @@ void PacmanPhysicsComponent::receive(Message message, int objectId, GameObject &
 		}
 
 		this->shiftCollisionBox(object.x, object.y);
+	}
+
+	if (objectId == object.objectId && message == STATE_CHANGE) {
+		this->changedDirection = true;
 	}
 }

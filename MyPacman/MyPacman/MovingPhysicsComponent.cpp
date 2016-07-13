@@ -10,29 +10,39 @@ MovingPhysicsComponent::~MovingPhysicsComponent()
 {
 }
 
-void MovingPhysicsComponent::takeTurnIfPossible(World &world, GameObject &object)
+bool MovingPhysicsComponent::takeTurnIfPossible(World &world, GameObject &object)
 {
-	CollisionBox offsetCollisionBox = this->getCollisionBox();
-	offsetCollisionBox.x += object.velocityX;
-	offsetCollisionBox.y += object.velocityY;
+	bool success = true;
+	double vx = object.velocityX;
+	double vy = object.velocityY;
 
-	// check if ghost can take a turn in given direction
-	if (world.collisionBoxIsColidingWith(ID_TILE, offsetCollisionBox)) {
-		object.x += this->previousVelocityX;
-		object.y += this->previousVelocityY;
+	if (this->changedDirection) {
+		CollisionBox offsetCollisionBox = this->getCollisionBox();
+		offsetCollisionBox.x += object.velocityX;
+		offsetCollisionBox.y += object.velocityY;
 
-		this->usedPreviousVelocity = true;
-		object.send(STATE_CHANGE, object.objectId);
+		// check if ghost can take a turn in given direction
+		if (world.collisionBoxIsColidingWith(ID_TILE, offsetCollisionBox)) {
+			vx = this->previousVelocityX;
+			vy = this->previousVelocityY;
+
+			this->usedPreviousVelocity = true;
+			object.send(STATE_CHANGE, object.objectId);
+			success = false;
+		}
 	}
-	else {
-		object.x += object.velocityX;
-		object.y += object.velocityY;
-		this->usedPreviousVelocity = false;
 
+	object.x += vx;
+	object.y += vy;
+
+	if (success) {
+		this->usedPreviousVelocity = false;
 		this->previousVelocityX = object.velocityX;
 		this->previousVelocityY = object.velocityY;
 		object.send(STATE_ORIGINAL, object.objectId);
 	}
+
+	return success;
 }
 
 void MovingPhysicsComponent::shiftCollisionBox(double x, double y)

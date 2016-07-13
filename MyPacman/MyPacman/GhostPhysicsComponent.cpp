@@ -14,8 +14,9 @@ GhostPhysicsComponent::~GhostPhysicsComponent()
 
 void GhostPhysicsComponent::update(GameObject &object, World &world)
 {
-	if (isCollidingWithTrail(object, world)) {
+	if (this->isCollidingWithTrail(object, world)) {
 		this->foundTrail = true;
+		this->changedDirection = true;
 	}
 	else {
 		this->foundTrail = false;
@@ -26,10 +27,13 @@ void GhostPhysicsComponent::update(GameObject &object, World &world)
 
 		if (shouldSwitchDirection == 0) {
 			this->switchDirection(object);
+			this->changedDirection = true;
 		}
 	}
 
-	this->takeTurnIfPossible(world, object);
+	if (this->takeTurnIfPossible(world, object)) {
+		this->changedDirection = false;
+	}
 
 	this->shiftCollisionBox(object.x, object.y);
 	world.resolveCollision(object);

@@ -44,7 +44,7 @@ void World::run(System &system, SystemGraphics &systemGraphics, SystemInput &sys
 	std::stringstream timeText;
 
 	int countedFrames = 0;
-	float avgFPS;
+	int avgFPS;
 	fpsTimer.start();
 	systemGraphics.createTextSprite("fpsTimer");
 
