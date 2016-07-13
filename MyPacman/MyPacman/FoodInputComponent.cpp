@@ -13,7 +13,7 @@ void FoodInputComponent::update(GameObject &object, SystemInput &input)
 
 }
 
-void FoodInputComponent::receive(Message message, int objectId, GameObject &object)
+void FoodInputComponent::receive(Message message, GameObject &other, GameObject &object)
 {
 
 }

@@ -44,11 +44,11 @@ void PacmanInputComponent::update(GameObject &object, SystemInput &input)
 	}
 
 	if (changedDirection) {
-		object.send(STATE_CHANGE, object.objectId);
+		object.send(STATE_CHANGE, object);
 	}
 }
 
-void PacmanInputComponent::receive(Message message, int objectId, GameObject &object)
+void PacmanInputComponent::receive(Message message, GameObject &other, GameObject &object)
 {
 
 }

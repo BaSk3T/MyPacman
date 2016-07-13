@@ -39,9 +39,9 @@ void GhostPhysicsComponent::update(GameObject &object, World &world)
 	world.resolveCollision(object);
 }
 
-void GhostPhysicsComponent::receive(Message message, int objectId, GameObject &object)
+void GhostPhysicsComponent::receive(Message message, GameObject &other, GameObject &object)
 {
-	if (message == COLLISION && objectId == 0) {
+	if (message == COLLISION && other.objectId == 0) {
 		if (this->usedPreviousVelocity) {
 			object.x -= this->previousVelocityX;
 			object.y -= this->previousVelocityY;

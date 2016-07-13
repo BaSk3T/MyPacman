@@ -19,7 +19,7 @@ public:
 	~GameObject();
 
 	void update(World &world, SystemGraphics &graphics, SystemInput &input);
-	void send(Message message, int objectId);
+	void send(Message message, GameObject &other);
 
 	InputComponent *input;
 	PhysicsComponent *physics;

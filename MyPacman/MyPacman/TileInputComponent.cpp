@@ -14,7 +14,7 @@ void TileInputComponent::update(GameObject &object, SystemInput &input)
 
 }
 
-void TileInputComponent::receive(Message message, int objectId, GameObject &object)
+void TileInputComponent::receive(Message message, GameObject &other, GameObject &object)
 {
 
 }

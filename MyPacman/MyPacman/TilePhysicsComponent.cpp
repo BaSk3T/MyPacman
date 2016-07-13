@@ -13,6 +13,6 @@ void TilePhysicsComponent::update(GameObject &object, World &world)
 {
 }
 
-void TilePhysicsComponent::receive(Message message, int objectId, GameObject &object)
+void TilePhysicsComponent::receive(Message message, GameObject &other, GameObject &object)
 {
 }

@@ -24,9 +24,9 @@ void GameObject::update(World &world, SystemGraphics &graphics, SystemInput &inp
 	this->graphics->update(*this, graphics);
 }
 
-void GameObject::send(Message message, int objectId)
+void GameObject::send(Message message, GameObject &other)
 {
-	this->input->receive(message, objectId, *this);
-	this->physics->receive(message, objectId, *this);
-	this->graphics->receive(message, objectId, *this);
+	this->input->receive(message, other, *this);
+	this->physics->receive(message, other, *this);
+	this->graphics->receive(message, other, *this);
 }

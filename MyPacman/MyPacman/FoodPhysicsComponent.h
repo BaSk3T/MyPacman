@@ -9,6 +9,6 @@ public:
 	~FoodPhysicsComponent();
 
 	void update(GameObject &object, World &world);
-	void receive(Message message, int objectId, GameObject &object);
+	void receive(Message message, GameObject &other, GameObject &object);
 };
 

@@ -27,7 +27,7 @@ bool MovingPhysicsComponent::takeTurnIfPossible(World &world, GameObject &object
 			vy = this->previousVelocityY;
 
 			this->usedPreviousVelocity = true;
-			object.send(STATE_CHANGE, object.objectId);
+			object.send(STATE_CHANGE, object);
 			success = false;
 		}
 	}
@@ -39,7 +39,7 @@ bool MovingPhysicsComponent::takeTurnIfPossible(World &world, GameObject &object
 		this->usedPreviousVelocity = false;
 		this->previousVelocityX = object.velocityX;
 		this->previousVelocityY = object.velocityY;
-		object.send(STATE_ORIGINAL, object.objectId);
+		object.send(STATE_ORIGINAL, object);
 	}
 
 	return success;

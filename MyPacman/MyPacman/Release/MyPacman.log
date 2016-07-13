@@ -1,7 +1,26 @@
-﻿  Generating code
-  3 of 1131 functions ( 0.3%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+﻿  FoodGraphicsComponent.cpp
+  FoodInputComponent.cpp
+  FoodPhysicsComponent.cpp
+  Game.cpp
+Game.cpp(12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+  GameObject.cpp
+  GhostGraphicsComponent.cpp
+  GhostInputComponent.cpp
+  GhostPhysicsComponent.cpp
+  Level.cpp
+  MovingPhysicsComponent.cpp
+  PacmanGraphicsComponent.cpp
+  PacmanInputComponent.cpp
+  PacmanPhysicsComponent.cpp
+  TileGraphicsComponent.cpp
+  TileInputComponent.cpp
+  TilePhysicsComponent.cpp
+  World.cpp
+World.cpp(73): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+  Generating code
+  58 of 1131 functions ( 5.1%) were compiled, the rest were copied from previous compilation.
+    13 functions were new in current compilation
+    25 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   MyPacman.vcxproj -> C:\Users\BaSk3T\Desktop\MyPacman\MyPacman\Release\MyPacman.exe
   MyPacman.vcxproj -> C:\Users\BaSk3T\Desktop\MyPacman\MyPacman\Release\MyPacman.pdb (Full PDB)

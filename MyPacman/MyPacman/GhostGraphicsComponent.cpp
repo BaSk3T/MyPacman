@@ -31,13 +31,13 @@ void GhostGraphicsComponent::update(GameObject &object, SystemGraphics &graphics
 	}
 }
 
-void GhostGraphicsComponent::receive(Message message, int objectId, GameObject &object)
+void GhostGraphicsComponent::receive(Message message, GameObject &other, GameObject &object)
 {
-	if (message == STATE_CHANGE && objectId == object.objectId) {
+	if (message == STATE_CHANGE && other.objectId == object.objectId) {
 		this->shouldDetermineDirection = false;
 	}
 
-	if (message == STATE_ORIGINAL && objectId == object.objectId) {
+	if (message == STATE_ORIGINAL && other.objectId == object.objectId) {
 		this->shouldDetermineDirection = true;
 	}
 }

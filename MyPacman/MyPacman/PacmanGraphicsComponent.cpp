@@ -29,13 +29,13 @@ void PacmanGraphicsComponent::update(GameObject &object, SystemGraphics &graphic
 	}
 }
 
-void PacmanGraphicsComponent::receive(Message message, int objectId, GameObject &object)
+void PacmanGraphicsComponent::receive(Message message, GameObject &other, GameObject &object)
 {
-	if (message == STATE_CHANGE && objectId == object.objectId) {
+	if (message == STATE_CHANGE && other.objectId == object.objectId) {
 		this->changeAngle = false;
 	}
 
-	if (message == STATE_ORIGINAL && objectId == object.objectId) {
+	if (message == STATE_ORIGINAL && other.objectId == object.objectId) {
 		this->changeAngle = true;
 	}
 }

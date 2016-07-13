@@ -25,9 +25,9 @@ void PacmanPhysicsComponent::update(GameObject &object, World &world)
 	world.resolveCollision(object);
 }
 
-void PacmanPhysicsComponent::receive(Message message, int objectId, GameObject &object)
+void PacmanPhysicsComponent::receive(Message message, GameObject &other, GameObject &object)
 {
-	if (objectId == ID_TILE && message == COLLISION) {
+	if (other.objectId == ID_TILE && message == COLLISION) {
 		if (this->usedPreviousVelocity) {
 			object.x -= this->previousVelocityX;
 			object.y -= this->previousVelocityY;
@@ -40,7 +40,7 @@ void PacmanPhysicsComponent::receive(Message message, int objectId, GameObject &
 		this->shiftCollisionBox(object.x, object.y);
 	}
 
-	if (objectId == object.objectId && message == STATE_CHANGE) {
+	if (other.objectId == object.objectId && message == STATE_CHANGE) {
 		this->changedDirection = true;
 	}
 }

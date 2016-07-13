@@ -5,6 +5,6 @@ class Component
 {
 public:
 	virtual ~Component() {};
-	virtual void receive(Message message, int objectId, GameObject &object) = 0;
+	virtual void receive(Message message, GameObject &other, GameObject &object) = 0;
 };
 

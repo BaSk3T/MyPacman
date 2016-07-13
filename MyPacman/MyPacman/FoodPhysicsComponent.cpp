@@ -15,6 +15,6 @@ void FoodPhysicsComponent::update(GameObject &object, World &world)
 {
 }
 
-void FoodPhysicsComponent::receive(Message message, int objectId, GameObject &object)
+void FoodPhysicsComponent::receive(Message message, GameObject &other, GameObject &object)
 {
 }

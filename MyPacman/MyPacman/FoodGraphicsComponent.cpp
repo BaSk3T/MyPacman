@@ -16,9 +16,9 @@ void FoodGraphicsComponent::update(GameObject &object, SystemGraphics &graphics)
 	}
 }
 
-void FoodGraphicsComponent::receive(Message message, int objectId, GameObject &object)
+void FoodGraphicsComponent::receive(Message message, GameObject &other, GameObject &object)
 {
-	if (objectId == ID_PACMAN && message == COLLISION) {
+	if (other.objectId == ID_PACMAN && message == COLLISION) {
 		this->draw = false;
 	}
 }

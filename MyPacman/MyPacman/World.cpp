@@ -106,8 +106,8 @@ void World::resolveCollision(GameObject &sender)
 		}
 
 		if (this->checkCollision(sender.physics->getCollisionBox(), object->physics->getCollisionBox())) {
-			object->send(COLLISION, sender.objectId);
-			sender.send(COLLISION, object->objectId);
+			object->send(COLLISION, sender);
+			sender.send(COLLISION, *object);
 		}
 	}
 }
