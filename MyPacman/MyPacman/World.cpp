@@ -37,11 +37,11 @@ void World::run(System &system, SystemGraphics &systemGraphics, SystemInput &sys
 	systemGraphics.createSprite("inky", "Sprites/Ghosts/inky-sprite.png");
 	systemGraphics.createSprite("clyde", "Sprites/Ghosts/clyde-sprite.png");
 
-	this->objects[2].push_back(new GameObject(2, 20, 20, new PacmanInputComponent(), new PacmanPhysicsComponent(), new PacmanGraphicsComponent()));
-	this->objects[3].push_back(new GameObject(3, WINDOW_WIDTH / 2 - 15, WINDOW_HEIGHT / 2 - 72, new GhostInputComponent(), new GhostPhysicsComponent(), new GhostGraphicsComponent("pinky")));
-	this->objects[3].push_back(new GameObject(3, WINDOW_WIDTH / 2 - 15, WINDOW_HEIGHT / 2 - 72, new GhostInputComponent(), new GhostPhysicsComponent(), new GhostGraphicsComponent("blinky")));
-	this->objects[3].push_back(new GameObject(3, WINDOW_WIDTH / 2 - 15, WINDOW_HEIGHT / 2 - 24, new GhostInputComponent(), new GhostPhysicsComponent(), new GhostGraphicsComponent("inky")));
-	this->objects[3].push_back(new GameObject(3, WINDOW_WIDTH / 2 - 15, WINDOW_HEIGHT / 2 - 24, new GhostInputComponent(), new GhostPhysicsComponent(), new GhostGraphicsComponent("clyde")));
+	this->objects[2].push_back(new GameObject(2, WINDOW_WIDTH / 2 - 12, WINDOW_HEIGHT / 2 + 24, new PacmanInputComponent(), new PacmanPhysicsComponent(), new PacmanGraphicsComponent()));
+	this->objects[3].push_back(new GameObject(3, WINDOW_WIDTH / 2 - 12, WINDOW_HEIGHT / 2 - 72, new GhostInputComponent(), new GhostPhysicsComponent(), new GhostGraphicsComponent("pinky")));
+	this->objects[3].push_back(new GameObject(3, WINDOW_WIDTH / 2 - 12, WINDOW_HEIGHT / 2 - 72, new GhostInputComponent(), new GhostPhysicsComponent(), new GhostGraphicsComponent("blinky")));
+	this->objects[3].push_back(new GameObject(3, WINDOW_WIDTH / 2 - 12, WINDOW_HEIGHT / 2 - 24, new GhostInputComponent(), new GhostPhysicsComponent(), new GhostGraphicsComponent("inky")));
+	this->objects[3].push_back(new GameObject(3, WINDOW_WIDTH / 2 - 12, WINDOW_HEIGHT / 2 - 24, new GhostInputComponent(), new GhostPhysicsComponent(), new GhostGraphicsComponent("clyde")));
 
 	this->trail.push_front(CollisionBox(20, 20, 24, 24));
 
