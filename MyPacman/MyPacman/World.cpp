@@ -6,13 +6,19 @@ World::World()
 
 World::~World()
 {
-	for each (GameObject *object in this->objects) {
-		delete object;
+	for (size_t i = 0; i < World::OBJECT_TYPES; i++) {
+		for each (GameObject *object in this->objects[i]) {
+			delete object;
+		}
 	}
 }
 
 void World::run(System &system, SystemGraphics &systemGraphics, SystemInput &systemInput, SystemFont &systemFont)
 {
+	for (size_t i = 0; i < World::OBJECT_TYPES; i++) {
+		this->objects[i] = std::vector<GameObject*>();
+	}
+
 	bool hasQuit = false;
 
 	system.createWindow("MyPacman", World::WINDOW_WIDTH, World::WINDOW_HEIGHT);
@@ -31,11 +37,11 @@ void World::run(System &system, SystemGraphics &systemGraphics, SystemInput &sys
 	systemGraphics.createSprite("inky", "Sprites/Ghosts/inky-sprite.png");
 	systemGraphics.createSprite("clyde", "Sprites/Ghosts/clyde-sprite.png");
 
-	this->objects.push_back(new GameObject(2, 20, 20, new PacmanInputComponent(), new PacmanPhysicsComponent(), new PacmanGraphicsComponent()));
-	this->objects.push_back(new GameObject(3, WINDOW_WIDTH / 2 - 15, WINDOW_HEIGHT / 2 - 72, new GhostInputComponent(), new GhostPhysicsComponent(), new GhostGraphicsComponent("pinky")));
-	this->objects.push_back(new GameObject(3, WINDOW_WIDTH / 2 - 15, WINDOW_HEIGHT / 2 - 72, new GhostInputComponent(), new GhostPhysicsComponent(), new GhostGraphicsComponent("blinky")));
-	this->objects.push_back(new GameObject(3, WINDOW_WIDTH / 2 - 15, WINDOW_HEIGHT / 2 - 24, new GhostInputComponent(), new GhostPhysicsComponent(), new GhostGraphicsComponent("inky")));
-	this->objects.push_back(new GameObject(3, WINDOW_WIDTH / 2 - 15, WINDOW_HEIGHT / 2 - 24, new GhostInputComponent(), new GhostPhysicsComponent(), new GhostGraphicsComponent("clyde")));
+	this->objects[2].push_back(new GameObject(2, 20, 20, new PacmanInputComponent(), new PacmanPhysicsComponent(), new PacmanGraphicsComponent()));
+	this->objects[3].push_back(new GameObject(3, WINDOW_WIDTH / 2 - 15, WINDOW_HEIGHT / 2 - 72, new GhostInputComponent(), new GhostPhysicsComponent(), new GhostGraphicsComponent("pinky")));
+	this->objects[3].push_back(new GameObject(3, WINDOW_WIDTH / 2 - 15, WINDOW_HEIGHT / 2 - 72, new GhostInputComponent(), new GhostPhysicsComponent(), new GhostGraphicsComponent("blinky")));
+	this->objects[3].push_back(new GameObject(3, WINDOW_WIDTH / 2 - 15, WINDOW_HEIGHT / 2 - 24, new GhostInputComponent(), new GhostPhysicsComponent(), new GhostGraphicsComponent("inky")));
+	this->objects[3].push_back(new GameObject(3, WINDOW_WIDTH / 2 - 15, WINDOW_HEIGHT / 2 - 24, new GhostInputComponent(), new GhostPhysicsComponent(), new GhostGraphicsComponent("clyde")));
 
 	this->trail.push_front(CollisionBox(20, 20, 24, 24));
 
@@ -62,8 +68,10 @@ void World::run(System &system, SystemGraphics &systemGraphics, SystemInput &sys
 		systemGraphics.setDrawColor(0, 0, 0, 0);
 		systemGraphics.clear();
 
-		for each (GameObject *object in this->objects) {
-			object->update(*this, systemGraphics, systemInput);
+		for (size_t i = 0; i < World::OBJECT_TYPES; i++) {
+			for each (GameObject *object in this->objects[i]) {
+				object->update(*this, systemGraphics, systemInput);
+			}
 		}
 
 		if (this->trail.size() >= 5) {
@@ -99,25 +107,24 @@ void World::run(System &system, SystemGraphics &systemGraphics, SystemInput &sys
 
 void World::resolveCollision(GameObject &sender)
 {
-	for each (GameObject *object in this->objects) {
+	for (size_t i = 0; i < World::OBJECT_TYPES; i++) {
+		for each (GameObject *object in this->objects[i]) {
 
-		if (!this->isInRangeOf(sender.physics->getCollisionBox(), object->physics->getCollisionBox(), World::COLLISION_RANGE)) {
-			continue;
-		}
+			if (!this->isInRangeOf(sender.physics->getCollisionBox(), object->physics->getCollisionBox(), World::COLLISION_RANGE)) {
+				continue;
+			}
 
-		if (this->checkCollision(sender.physics->getCollisionBox(), object->physics->getCollisionBox())) {
-			object->send(COLLISION, sender);
-			sender.send(COLLISION, *object);
+			if (this->checkCollision(sender.physics->getCollisionBox(), object->physics->getCollisionBox())) {
+				object->send(COLLISION, sender);
+				sender.send(COLLISION, *object);
+			}
 		}
 	}
 }
 
 bool World::collisionBoxIsColidingWith(int objectId, CollisionBox const &collisionBox)
 {
-	for each (GameObject *object in this->objects) {
-		if (object->objectId != objectId) {
-			continue;
-		}
+	for each (GameObject *object in this->objects[objectId]) {
 
 		if (!this->isInRangeOf(collisionBox, object->physics->getCollisionBox(), World::COLLISION_RANGE)) {
 			continue;

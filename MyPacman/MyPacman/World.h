@@ -27,8 +27,9 @@ public:
 	static const int COLLISION_RANGE = 50;
 	static const int SCREEN_FPS = 60;
 	static const int SCREEN_TICKS_PER_FRAME = 1000 / SCREEN_FPS;
+	static const int OBJECT_TYPES = 4;
 
-	std::vector<GameObject*> objects;
+	std::vector<GameObject*> objects[OBJECT_TYPES];
 	std::deque<CollisionBox> trail;
 
 	World();

@@ -28,7 +28,7 @@ public:
 	Level();
 	~Level();
 
-	void loadLevel(char *path, std::vector<GameObject*> &objects, int windowWidth, int windowHeight);
+	void loadLevel(char *path, std::vector<GameObject*> *objects, int windowWidth, int windowHeight);
 private :
 	static Rectangle tileClips[];
 };
