@@ -55,6 +55,12 @@
     <Filter Include="Source Files\Game\Ghost">
       <UniqueIdentifier>{3b3b2313-3972-4ad4-b5f4-0f6acb0a8299}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Game\Portal">
+      <UniqueIdentifier>{5b4a3086-1d71-4fe5-8504-ceb34a892fbb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Game\Portal">
+      <UniqueIdentifier>{acdcf29a-613b-4213-91d6-ed5f0184666a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp">
@@ -131,6 +137,15 @@
     </ClCompile>
     <ClCompile Include="SystemFont.cpp">
       <Filter>Source Files\Engine\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="PortalInputComponent.cpp">
+      <Filter>Source Files\Game\Portal</Filter>
+    </ClCompile>
+    <ClCompile Include="PortalGraphicsComponent.cpp">
+      <Filter>Source Files\Game\Portal</Filter>
+    </ClCompile>
+    <ClCompile Include="PortalPhysicsComponent.cpp">
+      <Filter>Source Files\Game\Portal</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -226,6 +241,15 @@
     </ClInclude>
     <ClInclude Include="SystemFont.h">
       <Filter>Header Files\Engine\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="PortalInputComponent.h">
+      <Filter>Header Files\Game\Portal</Filter>
+    </ClInclude>
+    <ClInclude Include="PortalGraphicsComponent.h">
+      <Filter>Header Files\Game\Portal</Filter>
+    </ClInclude>
+    <ClInclude Include="PortalPhysicsComponent.h">
+      <Filter>Header Files\Game\Portal</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

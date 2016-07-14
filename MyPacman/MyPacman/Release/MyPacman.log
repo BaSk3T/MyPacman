@@ -1,9 +1,8 @@
-﻿  World.cpp
-World.cpp(81): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+﻿  PortalPhysicsComponent.cpp
   Generating code
-  2 of 1145 functions ( 0.2%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    25 functions had inline decision re-evaluated but remain unchanged
+  4 of 1157 functions ( 0.3%) were compiled, the rest were copied from previous compilation.
+    4 functions were new in current compilation
+    27 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   MyPacman.vcxproj -> C:\Users\BaSk3T\Desktop\MyPacman\MyPacman\Release\MyPacman.exe
   MyPacman.vcxproj -> C:\Users\BaSk3T\Desktop\MyPacman\MyPacman\Release\MyPacman.pdb (Full PDB)
